@@ -1,2 +1,2356 @@
 <!DOCTYPE html>
-<html>test</html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARTH 105 - Quiz 3 Study Tool</title>
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --bg2: #ede7d9;
+    --bg3: #e4dccb;
+    --burgundy: #6b1e2f;
+    --burgundy-light: #8c2d3f;
+    --burgundy-dark: #4a1020;
+    --gold: #c9963c;
+    --gold-light: #e8b95a;
+    --brown: #5c3a1e;
+    --brown-light: #7a4e2d;
+    --text: #2c1a0e;
+    --text-light: #5a3e28;
+    --text-muted: #8a6a50;
+    --white: #fffdf7;
+    --shadow: rgba(44, 26, 14, 0.15);
+    --correct: #2d6a2d;
+    --incorrect: #8b1a1a;
+    --correct-bg: #e8f5e8;
+    --incorrect-bg: #fde8e8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Georgia', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  /* ---- TOP NAV ---- */
+  header {
+    background: linear-gradient(135deg, var(--burgundy-dark) 0%, var(--burgundy) 60%, var(--brown) 100%);
+    color: var(--white);
+    padding: 0;
+    box-shadow: 0 3px 12px var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .header-title {
+    flex: 1;
+    min-width: 180px;
+  }
+  .header-title h1 {
+    font-size: 1.3rem;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    color: var(--gold-light);
+  }
+  .header-title p {
+    font-size: 0.78rem;
+    opacity: 0.8;
+    font-family: sans-serif;
+    margin-top: 2px;
+  }
+  .mode-switcher {
+    display: flex;
+    gap: 8px;
+    background: rgba(0,0,0,0.25);
+    padding: 5px;
+    border-radius: 30px;
+  }
+  .mode-btn {
+    padding: 7px 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.25s;
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+  }
+  .mode-btn.active {
+    background: var(--gold);
+    color: var(--burgundy-dark);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .mode-btn:hover:not(.active) {
+    background: rgba(255,255,255,0.15);
+    color: white;
+  }
+  /* ---- MAIN LAYOUT ---- */
+  .main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+  /* ---- TABS ---- */
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid var(--bg3);
+    margin-bottom: 24px;
+  }
+  .tab-btn {
+    padding: 10px 22px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'Georgia', serif;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    color: var(--burgundy);
+    border-bottom-color: var(--burgundy);
+    font-weight: bold;
+  }
+  .tab-btn:hover:not(.active) {
+    color: var(--brown);
+    background: var(--bg2);
+    border-radius: 6px 6px 0 0;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  /* ---- MODE PANELS ---- */
+  .mode-panel { display: none; }
+  .mode-panel.active { display: block; }
+  /* ---- LEARN: TERMS TAB ---- */
+  .terms-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+    min-height: 500px;
+  }
+  .terms-sidebar {
+    background: var(--white);
+    border-radius: 10px;
+    border: 1px solid var(--bg3);
+    overflow: hidden;
+    box-shadow: 0 2px 8px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+    max-height: 75vh;
+    position: sticky;
+    top: 80px;
+  }
+  .terms-search {
+    padding: 10px;
+    border-bottom: 1px solid var(--bg3);
+    background: var(--bg2);
+  }
+  .terms-search input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--bg3);
+    border-radius: 6px;
+    font-family: sans-serif;
+    font-size: 0.85rem;
+    background: var(--white);
+    outline: none;
+  }
+  .terms-search input:focus { border-color: var(--burgundy); }
+  .terms-list {
+    overflow-y: auto;
+    flex: 1;
+  }
+  .term-item {
+    padding: 9px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--bg3);
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.15s;
+  }
+  .term-item:hover { background: var(--bg2); }
+  .term-item.active { background: var(--burgundy); color: var(--white); }
+  .term-item .cat-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .term-detail {
+    background: var(--white);
+    border-radius: 10px;
+    border: 1px solid var(--bg3);
+    padding: 28px;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .term-detail-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    font-style: italic;
+    text-align: center;
+  }
+  .term-detail h2 {
+    font-size: 1.6rem;
+    color: var(--burgundy);
+    margin-bottom: 8px;
+  }
+  .term-detail .badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .badge {
+    padding: 3px 12px;
+    border-radius: 15px;
+    font-size: 0.78rem;
+    font-family: sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .badge-cat { background: var(--bg3); color: var(--brown); }
+  .badge-period { background: var(--gold-light); color: var(--burgundy-dark); }
+  .badge-iconography { background: #dce8f0; color: #1a3a5c; }
+  .badge-figures { background: #e8f0dc; color: #2a4a1a; }
+  .badge-artworks { background: #f0e8dc; color: #4a2a1a; }
+  .badge-objects { background: #e8dce8; color: #3a1a3a; }
+  .badge-concepts { background: #dce8e4; color: #1a3a30; }
+  .badge-sites { background: #e8e4dc; color: #3a3a1a; }
+  .badge-periods { background: #f0dce0; color: #4a1a20; }
+  .term-def {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+  .related-section h4 {
+    font-size: 0.8rem;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .chip {
+    padding: 4px 14px;
+    background: var(--bg2);
+    border: 1px solid var(--bg3);
+    border-radius: 20px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: sans-serif;
+    color: var(--brown);
+  }
+  .chip:hover { background: var(--burgundy); color: white; border-color: var(--burgundy); }
+  .term-image-preview {
+    margin-top: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 320px;
+    border: 2px solid var(--bg3);
+  }
+  .term-image-preview img {
+    width: 100%;
+    display: block;
+  }
+  /* ---- LEARN: ARTWORKS TAB ---- */
+  .artworks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+  }
+  .artwork-card {
+    background: var(--white);
+    border-radius: 10px;
+    border: 1px solid var(--bg3);
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .artwork-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px var(--shadow);
+  }
+  .artwork-card-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+    background: var(--bg3);
+  }
+  .artwork-card-body { padding: 14px; }
+  .artwork-card-title {
+    font-size: 0.92rem;
+    font-weight: bold;
+    color: var(--burgundy);
+    margin-bottom: 4px;
+  }
+  .artwork-card-period {
+    font-size: 0.78rem;
+    font-family: sans-serif;
+    color: var(--text-muted);
+  }
+  /* Artwork modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 30px 20px;
+  }
+  .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+  .modal-box {
+    background: var(--white);
+    border-radius: 14px;
+    max-width: 860px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn {
+    from { transform: scale(0.92) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    background: linear-gradient(135deg, var(--burgundy-dark), var(--burgundy));
+    color: white;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-header h2 { font-size: 1.3rem; color: var(--gold-light); }
+  .modal-close {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.35); }
+  .modal-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .modal-img-side {
+    background: var(--bg3);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-img-side img {
+    max-width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .modal-info-side { padding: 24px; overflow-y: auto; max-height: 520px; }
+  .modal-info-side .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .modal-def { font-size: 0.95rem; line-height: 1.7; color: var(--text); margin-bottom: 18px; }
+  .modal-terms-section h4 {
+    font-size: 0.78rem;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  /* ---- LEARN: TIMELINE TAB ---- */
+  .timeline-container { padding: 10px 0; }
+  .timeline-header {
+    background: linear-gradient(135deg, var(--burgundy-dark), var(--burgundy));
+    color: white;
+    border-radius: 10px;
+    padding: 20px 28px;
+    margin-bottom: 28px;
+  }
+  .timeline-header h2 { font-size: 1.3rem; color: var(--gold-light); margin-bottom: 6px; }
+  .timeline-header p { font-size: 0.9rem; opacity: 0.85; line-height: 1.6; }
+  .timeline-track {
+    position: relative;
+    padding: 20px 0 40px;
+  }
+  .timeline-spine {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, var(--bg3), var(--gold), var(--burgundy));
+    transform: translateX(-50%);
+    border-radius: 2px;
+  }
+  .era-section {
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .era-label {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 20px;
+  }
+  .era-label-inner {
+    display: inline-block;
+    background: var(--burgundy);
+    color: var(--gold-light);
+    padding: 6px 24px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    font-family: sans-serif;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .timeline-items {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+  }
+  .timeline-branches {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    position: relative;
+  }
+  .timeline-branch-label {
+    text-align: center;
+    font-size: 0.82rem;
+    font-family: sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gold);
+    background: var(--brown);
+    padding: 5px 14px;
+    border-radius: 15px;
+    margin-bottom: 14px;
+    display: inline-block;
+  }
+  .timeline-branch { text-align: center; }
+  .tl-card {
+    background: var(--white);
+    border: 1px solid var(--bg3);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px var(--shadow);
+    display: inline-flex;
+    flex-direction: column;
+    width: 170px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-align: left;
+    vertical-align: top;
+    margin: 6px;
+  }
+  .tl-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px var(--shadow);
+  }
+  .tl-card img {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    background: var(--bg3);
+  }
+  .tl-card-body { padding: 10px; }
+  .tl-card-name { font-size: 0.8rem; font-weight: bold; color: var(--burgundy); line-height: 1.3; }
+  .tl-card-date { font-size: 0.72rem; font-family: sans-serif; color: var(--text-muted); margin-top: 3px; }
+  .tl-no-img {
+    width: 100%;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg3);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-style: italic;
+    text-align: center;
+    padding: 8px;
+  }
+  .key-insight {
+    background: linear-gradient(135deg, var(--bg2), var(--white));
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-top: 32px;
+  }
+  .key-insight h3 {
+    color: var(--burgundy);
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .key-insight h3::before {
+    content: '';
+    display: inline-block;
+    width: 14px; height: 14px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+  .key-insight p { font-size: 0.95rem; line-height: 1.75; color: var(--text); }
+  .evolution-arrows {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    font-family: sans-serif;
+    font-size: 0.85rem;
+  }
+  .evo-node {
+    background: var(--white);
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: var(--brown);
+    font-weight: 600;
+    text-align: center;
+  }
+  .evo-arrow { color: var(--gold); font-size: 1.3rem; font-weight: bold; }
+  /* ---- CONNECTION MAP ---- */
+  .conn-map-section {
+    margin-top: 32px;
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid var(--bg3);
+    padding: 24px;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .conn-map-section h3 {
+    color: var(--burgundy);
+    font-size: 1.1rem;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--bg3);
+  }
+  .conn-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .conn-group {
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--bg3);
+    padding: 14px;
+  }
+  .conn-group-title {
+    font-size: 0.78rem;
+    font-family: sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--gold);
+    background: var(--brown);
+    padding: 3px 10px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  .conn-list { list-style: none; }
+  .conn-list li {
+    font-size: 0.85rem;
+    padding: 4px 0;
+    padding-left: 14px;
+    position: relative;
+    color: var(--text-light);
+    border-bottom: 1px solid var(--bg3);
+  }
+  .conn-list li:last-child { border-bottom: none; }
+  .conn-list li::before {
+    content: '•';
+    position: absolute;
+    left: 2px;
+    color: var(--gold);
+  }
+  /* ---- QUIZ MODE ---- */
+  .quiz-setup {
+    max-width: 560px;
+    margin: 0 auto;
+    background: var(--white);
+    border-radius: 14px;
+    border: 1px solid var(--bg3);
+    padding: 36px;
+    box-shadow: 0 4px 20px var(--shadow);
+  }
+  .quiz-setup h2 {
+    color: var(--burgundy);
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+  }
+  .quiz-setup .subtitle {
+    color: var(--text-muted);
+    font-family: sans-serif;
+    font-size: 0.88rem;
+    margin-bottom: 28px;
+  }
+  .setup-group { margin-bottom: 24px; }
+  .setup-group label {
+    display: block;
+    font-size: 0.88rem;
+    font-family: sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .checkbox-group { display: flex; flex-direction: column; gap: 8px; }
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-size: 0.92rem;
+    padding: 8px 12px;
+    border-radius: 7px;
+    transition: background 0.15s;
+  }
+  .checkbox-item:hover { background: var(--bg2); }
+  .checkbox-item input { accent-color: var(--burgundy); width: 16px; height: 16px; }
+  .num-select {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .num-option {
+    padding: 8px 20px;
+    border: 2px solid var(--bg3);
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-size: 0.9rem;
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .num-option:hover { border-color: var(--burgundy); color: var(--burgundy); }
+  .num-option.selected { background: var(--burgundy); color: white; border-color: var(--burgundy); }
+  .start-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--burgundy), var(--burgundy-light));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Georgia', serif;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(107, 30, 47, 0.4);
+  }
+  .start-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(107, 30, 47, 0.5); }
+  .start-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  /* Quiz session */
+  .quiz-session { display: none; }
+  .quiz-progress-bar-wrap {
+    background: var(--bg3);
+    border-radius: 10px;
+    height: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .quiz-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--burgundy));
+    border-radius: 10px;
+    transition: width 0.4s;
+  }
+  .quiz-progress-text {
+    font-family: sans-serif;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .quiz-score-badge {
+    background: var(--burgundy);
+    color: var(--gold-light);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-weight: bold;
+  }
+  /* Flashcard */
+  .flashcard-wrap {
+    perspective: 1000px;
+    max-width: 600px;
+    margin: 0 auto;
+    cursor: pointer;
+  }
+  .flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+  .flashcard-inner.flipped { transform: rotateY(180deg); }
+  .flashcard-front, .flashcard-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 6px 24px var(--shadow);
+  }
+  .flashcard-front {
+    background: linear-gradient(135deg, var(--burgundy-dark), var(--burgundy));
+    color: white;
+  }
+  .flashcard-front .fc-label {
+    font-size: 0.75rem;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+    margin-bottom: 16px;
+  }
+  .flashcard-front .fc-term {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--gold-light);
+  }
+  .flashcard-front .fc-hint {
+    margin-top: 16px;
+    font-size: 0.78rem;
+    opacity: 0.5;
+    font-family: sans-serif;
+  }
+  .flashcard-back {
+    background: var(--white);
+    border: 2px solid var(--gold);
+    transform: rotateY(180deg);
+    color: var(--text);
+  }
+  .flashcard-back .fc-def {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .fc-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .fc-btn {
+    padding: 10px 28px;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .fc-btn-know { background: var(--correct); color: white; }
+  .fc-btn-know:hover { background: #1e4d1e; }
+  .fc-btn-review { background: var(--bg3); color: var(--text); }
+  .fc-btn-review:hover { background: var(--brown); color: white; }
+  .fc-btn-flip { background: var(--gold); color: var(--burgundy-dark); }
+  .fc-btn-flip:hover { background: var(--gold-light); }
+  /* Fill in the blank */
+  .fitb-card {
+    background: var(--white);
+    border-radius: 14px;
+    border: 1px solid var(--bg3);
+    padding: 36px;
+    max-width: 680px;
+    margin: 0 auto;
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+  .fitb-q-label {
+    font-size: 0.75rem;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+  .fitb-sentence {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+  .fitb-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .fitb-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 16px;
+    border: 2px solid var(--bg3);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Georgia', serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .fitb-input:focus { border-color: var(--burgundy); }
+  .fitb-input.correct { border-color: var(--correct); background: var(--correct-bg); }
+  .fitb-input.incorrect { border-color: var(--incorrect); background: var(--incorrect-bg); }
+  .fitb-submit {
+    padding: 12px 24px;
+    background: var(--burgundy);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  .fitb-submit:hover { background: var(--burgundy-light); }
+  .fitb-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  /* Image question */
+  .imgq-card {
+    background: var(--white);
+    border-radius: 14px;
+    border: 1px solid var(--bg3);
+    overflow: hidden;
+    max-width: 720px;
+    margin: 0 auto;
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+  .imgq-img-wrap {
+    background: var(--bg3);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: 300px;
+    overflow: hidden;
+  }
+  .imgq-img-wrap img {
+    max-height: 260px;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .imgq-content { padding: 28px; }
+  .imgq-q-label {
+    font-size: 0.75rem;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .imgq-question { font-size: 1.1rem; margin-bottom: 20px; line-height: 1.5; }
+  .imgq-options { display: flex; flex-direction: column; gap: 10px; }
+  .imgq-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 2px solid var(--bg3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: sans-serif;
+    font-size: 0.92rem;
+  }
+  .imgq-option:hover:not(.disabled) { border-color: var(--burgundy); background: var(--bg); }
+  .imgq-option.selected { border-color: var(--gold); background: #fdf5e6; }
+  .imgq-option.correct { border-color: var(--correct); background: var(--correct-bg); color: var(--correct); font-weight: bold; }
+  .imgq-option.incorrect { border-color: var(--incorrect); background: var(--incorrect-bg); color: var(--incorrect); }
+  .imgq-option.disabled { cursor: not-allowed; opacity: 0.8; }
+  .option-letter {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 0.82rem;
+    flex-shrink: 0;
+  }
+  .imgq-option.correct .option-letter { background: var(--correct); color: white; }
+  .imgq-option.incorrect .option-letter { background: var(--incorrect); color: white; }
+  /* Feedback */
+  .feedback-box {
+    margin-top: 18px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-family: sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback-box.correct { background: var(--correct-bg); border: 1px solid var(--correct); color: var(--correct); }
+  .feedback-box.incorrect { background: var(--incorrect-bg); border: 1px solid var(--incorrect); color: var(--incorrect); }
+  .feedback-box.show { display: block; }
+  .next-btn {
+    display: block;
+    margin: 20px auto 0;
+    padding: 11px 32px;
+    background: var(--burgundy);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(107,30,47,0.3);
+  }
+  .next-btn:hover { background: var(--burgundy-light); transform: translateY(-1px); }
+  /* Results */
+  .quiz-results {
+    max-width: 560px;
+    margin: 0 auto;
+    background: var(--white);
+    border-radius: 14px;
+    padding: 36px;
+    text-align: center;
+    box-shadow: 0 4px 20px var(--shadow);
+  }
+  .result-score-circle {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--burgundy-dark), var(--burgundy));
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 6px 20px rgba(107,30,47,0.4);
+  }
+  .result-score-num {
+    font-size: 2.4rem;
+    font-weight: bold;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+  .result-score-denom {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.7);
+    font-family: sans-serif;
+  }
+  .result-grade {
+    font-size: 1.5rem;
+    color: var(--burgundy);
+    margin-bottom: 8px;
+  }
+  .result-msg {
+    color: var(--text-muted);
+    font-family: sans-serif;
+    font-size: 0.9rem;
+    margin-bottom: 28px;
+  }
+  .result-breakdown {
+    text-align: left;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 24px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .result-breakdown h4 {
+    font-size: 0.82rem;
+    font-family: sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .result-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--bg3);
+    font-size: 0.85rem;
+    font-family: sans-serif;
+  }
+  .result-item:last-child { border-bottom: none; }
+  .result-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+  .result-q-text { flex: 1; color: var(--text-light); }
+  .result-q-ans { color: var(--text-muted); font-size: 0.78rem; margin-top: 2px; }
+  .retry-btn {
+    padding: 12px 32px;
+    background: linear-gradient(135deg, var(--burgundy), var(--burgundy-light));
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 6px;
+    box-shadow: 0 3px 10px rgba(107,30,47,0.35);
+    transition: all 0.2s;
+  }
+  .retry-btn:hover { transform: translateY(-1px); }
+  .retry-btn.secondary { background: var(--bg3); color: var(--text); box-shadow: none; }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+  /* Responsive */
+  @media (max-width: 720px) {
+    .terms-layout { grid-template-columns: 1fr; }
+    .terms-sidebar { position: static; max-height: 260px; }
+    .modal-body { grid-template-columns: 1fr; }
+    .modal-img-side { max-height: 240px; }
+    .timeline-branches { grid-template-columns: 1fr; }
+    .header-inner { padding: 10px 14px; gap: 12px; }
+    .header-title h1 { font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="header-title">
+      <h1>ARTH 105 &mdash; Quiz 3</h1>
+      <p>Kushana &amp; Gupta Buddhist Art Study Tool</p>
+    </div>
+    <div class="mode-switcher">
+      <button class="mode-btn active" onclick="switchMode('learn')">Learn Mode</button>
+      <button class="mode-btn" onclick="switchMode('quiz')">Quiz Mode</button>
+    </div>
+  </div>
+</header>
+
+<div class="main-content">
+
+  <!-- ====== LEARN MODE ====== -->
+  <div class="mode-panel active" id="panel-learn">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('terms')">Terms</button>
+      <button class="tab-btn" onclick="switchTab('artworks')">Artworks</button>
+      <button class="tab-btn" onclick="switchTab('timeline')">Timeline</button>
+    </div>
+
+    <!-- TERMS TAB -->
+    <div class="tab-panel active" id="tab-terms">
+      <div class="terms-layout">
+        <div class="terms-sidebar">
+          <div class="terms-search">
+            <input type="text" id="terms-search-input" placeholder="Search terms..." oninput="filterTerms(this.value)">
+          </div>
+          <div class="terms-list" id="terms-list"></div>
+        </div>
+        <div class="term-detail" id="term-detail">
+          <div class="term-detail-empty">Select a term from the list to view its definition and connections.</div>
+        </div>
+      </div>
+
+      <div class="conn-map-section">
+        <h3>Connection Map: Key Relationships</h3>
+        <div class="conn-groups">
+          <div class="conn-group">
+            <span class="conn-group-title">Iconography</span>
+            <ul class="conn-list">
+              <li>Abhaya mudra &rarr; Katra Buddha, Bala Buddha, Kanishka Reliquary</li>
+              <li>Ushnisha (cranial bump) &rarr; all Buddha images</li>
+              <li>Urna (forehead dot) &rarr; all Buddha images</li>
+              <li>Lakshana (auspicious signs) &rarr; Katra Buddha, Bala Buddha</li>
+              <li>Tribhanga (S-curve) &rarr; Hariti, Bodhisattvas, Yakshis</li>
+            </ul>
+          </div>
+          <div class="conn-group">
+            <span class="conn-group-title">Yaksha &rarr; Buddha Evolution</span>
+            <ul class="conn-list">
+              <li>Parkham Yaksha &rarr; Proto-Buddha form (frontality, barrel chest)</li>
+              <li>Katra Buddha &rarr; Yaksha-derived with Buddhist signs</li>
+              <li>Bala Buddha &rarr; "Transformed Yaksha" (Friar Bala commissioned)</li>
+              <li>Bhuteshar Yakshis &rarr; becoming attendants in Kushana era</li>
+            </ul>
+          </div>
+          <div class="conn-group">
+            <span class="conn-group-title">Kushana Centers</span>
+            <ul class="conn-list">
+              <li>Mathura &rarr; Red Sikri Sandstone, Katra/Bala Buddhas</li>
+              <li>Gandhara &rarr; Gray micaceous schist, Hoti Mardan, Fasting Buddha</li>
+              <li>Gandhara &rarr; Roman drapery influence</li>
+              <li>Kanishka (emperor) &rarr; Kanishka Reliquary, Shah-ji-ki-Dheri</li>
+            </ul>
+          </div>
+          <div class="conn-group">
+            <span class="conn-group-title">Gupta Era Evolution</span>
+            <ul class="conn-list">
+              <li>Bodhgaya Buddha &rarr; snail curls, heart-shaped face, spiritual shift</li>
+              <li>Less physical &rarr; more spiritual/introspective representation</li>
+              <li>Darshan (divine gaze) &rarr; lost in Gupta period</li>
+              <li>Nagarjunakonda Buddha &rarr; southern regional style</li>
+            </ul>
+          </div>
+          <div class="conn-group">
+            <span class="conn-group-title">Bodhisattva Concept</span>
+            <ul class="conn-list">
+              <li>Bodhisattva &rarr; delays enlightenment to help others</li>
+              <li>Maitreya &rarr; future Buddha / Buddha-to-come</li>
+              <li>Avalokiteshvara &rarr; Bodhisattva of infinite compassion</li>
+              <li>Bodhisattvas dressed like princes (jewelry, hair) vs. plain Buddha</li>
+            </ul>
+          </div>
+          <div class="conn-group">
+            <span class="conn-group-title">Protective/Divine Figures</span>
+            <ul class="conn-list">
+              <li>Hariti &rarr; former demon, now protector of children</li>
+              <li>Yakshis &rarr; nature spirits, increasingly attendant</li>
+              <li>Dwarf Yakshas &rarr; garland-bearers on Kanishka Reliquary</li>
+              <li>Maya &rarr; mother of the Buddha</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARTWORKS TAB -->
+    <div class="tab-panel" id="tab-artworks">
+      <div class="artworks-grid" id="artworks-grid"></div>
+    </div>
+
+    <!-- TIMELINE TAB -->
+    <div class="tab-panel" id="tab-timeline">
+      <div class="timeline-container">
+        <div class="timeline-header">
+          <h2>Stylistic Evolution of Buddhist Art</h2>
+          <p>From the early Yaksha tradition through the Kushana period's twin centers of Mathura and Gandhara, culminating in the Gupta "Golden Age" — trace how the representation of the Buddha evolved from a powerful nature deity to an increasingly spiritual and introspective form.</p>
+        </div>
+
+        <div class="evolution-arrows">
+          <div class="evo-node">Pre-Kushana<br><small>Yaksha Tradition</small></div>
+          <span class="evo-arrow">&rarr;</span>
+          <div class="evo-node">Kushana Era<br><small>ca. 30–375 CE</small></div>
+          <span class="evo-arrow">&rarr;</span>
+          <div class="evo-node">Gupta Era<br><small>3rd–6th c. CE</small></div>
+        </div>
+
+        <div class="timeline-track">
+          <div class="timeline-spine"></div>
+
+          <!-- PRE-KUSHANA -->
+          <div class="era-section">
+            <div class="era-label"><span class="era-label-inner">Pre-Kushana: Yaksha Tradition</span></div>
+            <div class="timeline-items">
+              <div class="tl-card" onclick="openModal('parkham')">
+                <div class="tl-no-img">No image<br>available</div>
+                <div class="tl-card-body">
+                  <div class="tl-card-name">Parkham Yaksha</div>
+                  <div class="tl-card-date">Proto-form | Mathura</div>
+                </div>
+              </div>
+              <div class="tl-card" onclick="openModal('didarganj')">
+                <div class="tl-no-img">No image<br>available</div>
+                <div class="tl-card-body">
+                  <div class="tl-card-name">Didarganj Yakshi</div>
+                  <div class="tl-card-date">Pre-Kushana</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- KUSHANA -->
+          <div class="era-section">
+            <div class="era-label"><span class="era-label-inner">Kushana Era (ca. 30&ndash;375 CE)</span></div>
+            <div class="timeline-branches">
+              <div class="timeline-branch">
+                <div><span class="timeline-branch-label">Mathura (Red Sikri Sandstone)</span></div>
+                <div class="tl-card" onclick="openArtworkModal(5)">
+                  <img src="images/img-006.png" alt="Katra Buddha">
+                  <div class="tl-card-body">
+                    <div class="tl-card-name">Katra Buddha</div>
+                    <div class="tl-card-date">Kushana | Mathura</div>
+                  </div>
+                </div>
+                <div class="tl-card" onclick="openArtworkModal(6)">
+                  <img src="images/img-007.png" alt="Bala Buddha">
+                  <div class="tl-card-body">
+                    <div class="tl-card-name">Bala Buddha of Year 3</div>
+                    <div class="tl-card-date">Kushana | Mathura</div>
+                  </div>
+                </div>
+                <div class="tl-card" onclick="openArtworkModal(3)">
+                  <img src="images/img-004.png" alt="Yakshi with mirror">
+                  <div class="tl-card-body">
+                    <div class="tl-card-name">Yakshi with Mirror (Bhuteshar)</div>
+                    <div class="tl-card-date">Kushana | Mathura</div>
+                  </div>
+                </div>
+                <div class="tl-card" onclick="openArtworkModal(4)">
+                  <img src="images/img-005.png" alt="Yakshi putting on clothes">
+                  <div class="tl-card-body">
+                    <div class="tl-card-name">Yakshi Putting on Clothes (Bhuteshar)</div>
+                    <div class="tl-card-date">Kushana | Mathura</div>
+                  </div>
+                </div>
+              </div>
+              <div class="timeline-branch">
+                <div><span class="timeline-branch-label">Gandhara (Gray Micaceous Schist)</span></div>
+                <div class="tl-card" onclick="openArtworkModal(0)">
+                  <img src="images/img-000.png" alt="Kanishka Reliquary">
+                  <div class="tl-card-body">
+                    <div class="tl-card-name">Kanishka Reliquary</div>
+                    <div class="tl-card-date">Kushana | Gandhara</div>
+                  </div>
+                </div>
+                <div class="tl-card" onclick="openArtworkModal(1)">
+                  <img src="images/img-001.png" alt="Hoti Mardan Buddha">
+                  <div class="tl-card-body">
+                    <div class="tl-card-name">Hoti Mardan Buddha</div>
+                    <div class="tl-card-date">Kushana | Gandhara</div>
+                  </div>
+                </div>
+                <div class="tl-card" onclick="openArtworkModal(2)">
+                  <img src="images/img-002.png" alt="Fasting Buddha">
+                  <div class="tl-card-body">
+                    <div class="tl-card-name">Fasting Buddha</div>
+                    <div class="tl-card-date">Kushana | Gandhara</div>
+                  </div>
+                </div>
+                <div class="tl-card" onclick="openArtworkModal(9)">
+                  <img src="images/img-008.png" alt="Hariti">
+                  <div class="tl-card-body">
+                    <div class="tl-card-name">Goddess Hariti</div>
+                    <div class="tl-card-date">Kushana | Gandhara</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bodhisattva (bridges both) -->
+          <div class="era-section">
+            <div class="era-label"><span class="era-label-inner">Kushana: Gandhara Bodhisattva</span></div>
+            <div class="timeline-items">
+              <div class="tl-card" onclick="openArtworkModal(10)">
+                <img src="images/img-003.png" alt="Bodhisattva Maitreya">
+                <div class="tl-card-body">
+                  <div class="tl-card-name">Bodhisattva Maitreya</div>
+                  <div class="tl-card-date">Kushana | Gandhara</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- GUPTA -->
+          <div class="era-section">
+            <div class="era-label"><span class="era-label-inner">Gupta Era: The Golden Age (3rd&ndash;6th c. CE)</span></div>
+            <div class="timeline-items">
+              <div class="tl-card" onclick="openArtworkModal(8)">
+                <img src="images/img-009.png" alt="Bodhgaya Buddha">
+                <div class="tl-card-body">
+                  <div class="tl-card-name">Bodhgaya Buddha of Year 64</div>
+                  <div class="tl-card-date">Gupta | Mathura</div>
+                </div>
+              </div>
+              <div class="tl-card" onclick="openModal('nagarjunakonda')">
+                <div class="tl-no-img">No image<br>available</div>
+                <div class="tl-card-body">
+                  <div class="tl-card-name">Nagarjunakonda Buddha</div>
+                  <div class="tl-card-date">Gupta | Southern</div>
+                </div>
+              </div>
+              <div class="tl-card" onclick="openModal('sarnath')">
+                <div class="tl-no-img">No image<br>available</div>
+                <div class="tl-card-body">
+                  <div class="tl-card-name">Seated Buddha from Sarnath</div>
+                  <div class="tl-card-date">Gupta | Sarnath</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="key-insight">
+          <h3>Key Insight: The Evolution of Buddha Representation</h3>
+          <p>
+            The transformation from <strong>Yaksha to Buddha</strong> is the central narrative of this period. The Parkham Yaksha establishes the visual vocabulary: massive frontal body, barrel chest, flywhisk, balanced weight. When the Buddha is first depicted in human form at <strong>Mathura</strong>, he inherits this Yaksha physicality &mdash; the Bala Buddha is explicitly described as a "transformed Yaksha," retaining the sturdy build but swapping the flywhisk for the abhaya mudra and adding Buddhist lakshana. The Katra Buddha shows the same transformation: powerful, direct gaze (darshan), lion throne, broad chest.
+          </p>
+          <p style="margin-top:12px;">
+            <strong>Gandhara</strong> takes a different path, shaped by contact with provincial Rome. The Hoti Mardan Buddha wears Roman-style drapery, uses contrapposto, and looks downward &mdash; more introspective than Mathura's confrontational gazes. The Fasting Buddha literalizes ascetic texts in hyper-realistic detail. The Bodhisattva figures from Gandhara remain elaborately adorned, visually bridging the human and divine worlds.
+          </p>
+          <p style="margin-top:12px;">
+            In the <strong>Gupta era</strong> (the "Golden Age"), the pendulum swings toward spirituality. The Bodhgaya Buddha of Year 64 has snail-shell curls, a heart-shaped face, and notably does <em>not</em> meet the viewer's gaze &mdash; darshan is gone. The figure becomes less physical, more transcendent. The cheerfulness of Kushana Mathura Buddhas disappears. This marks a definitive shift from deity-as-presence to deity-as-ideal.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== QUIZ MODE ====== -->
+  <div class="mode-panel" id="panel-quiz">
+    <div id="quiz-setup-panel">
+      <div class="quiz-setup">
+        <h2>Quiz Mode</h2>
+        <p class="subtitle">ARTH 105 &mdash; Quiz 3: Kushana &amp; Gupta Buddhist Art</p>
+
+        <div class="setup-group">
+          <label>Question Types</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="type-vocab" checked>
+              Flash Cards (term &rarr; definition)
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="type-fitb" checked>
+              Fill in the Blank (sentence completion)
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="type-image" checked>
+              Image Questions (identify artworks)
+            </label>
+          </div>
+        </div>
+
+        <div class="setup-group">
+          <label>Number of Questions</label>
+          <div class="num-select">
+            <button class="num-option" onclick="selectNum(this, 10)">10</button>
+            <button class="num-option selected" onclick="selectNum(this, 20)">20</button>
+            <button class="num-option" onclick="selectNum(this, 30)">30</button>
+            <button class="num-option" onclick="selectNum(this, 999)">All</button>
+          </div>
+        </div>
+
+        <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+      </div>
+    </div>
+
+    <div class="quiz-session" id="quiz-session-panel">
+      <div class="quiz-progress-bar-wrap">
+        <div class="quiz-progress-bar" id="quiz-progress-bar"></div>
+      </div>
+      <div class="quiz-progress-text">
+        <span id="quiz-q-counter">Question 1 of 20</span>
+        <span class="quiz-score-badge" id="quiz-score-badge">Score: 0</span>
+      </div>
+      <div id="quiz-question-area"></div>
+    </div>
+
+    <div id="quiz-results-panel" style="display:none;">
+      <div class="quiz-results" id="quiz-results-content"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Artwork Modal -->
+<div class="modal-overlay" id="artwork-modal" onclick="closeModalOutside(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="modal-title">Artwork Title</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-img-side">
+        <img id="modal-img" src="" alt="">
+      </div>
+      <div class="modal-info-side" id="modal-info"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// DATA
+// =====================================================================
+const TERMS = [
+  {
+    id: 'abhaya-mudra',
+    name: 'Abhaya mudra',
+    def: 'Gesture of freedom from fear. The raised right hand with palm facing outward is one of the most common gestures in Buddhist sculpture.',
+    category: 'iconography',
+    related: ['katra-buddha', 'bala-buddha', 'kanishka-reliquary'],
+    period: null
+  },
+  {
+    id: 'avalokiteshvara',
+    name: 'Avalokiteshvara',
+    def: 'The Bodhisattva of infinite compassion. One of the most widely venerated Bodhisattvas in Buddhism, seen as a bridge between the human and divine worlds.',
+    category: 'figures',
+    related: ['bodhisattva', 'maitreya'],
+    period: null
+  },
+  {
+    id: 'ayagapatta',
+    name: 'Ayagapatta',
+    def: 'Jain homage or votive tablets. Flat stone tablets bearing religious imagery and inscriptions used for devotional purposes in Jainism.',
+    category: 'objects',
+    related: [],
+    period: null
+  },
+  {
+    id: 'bhuteshar-yakshis',
+    name: 'Bhuteshar Yakshis',
+    def: 'Divine beings only because they are standing on other beings. Amorous couples (mithunas) appear at the top. They are very much human now — Yakshis involved in mundane acts (putting on makeup, dressing). Birds peck at their hair thinking water beads are jewels. A good example of Yakshis becoming attendant figures. Cosmic completion (makeup, clothes, etc.). People touch their breasts, genitals, and feet for good luck. Didarganj example leads to Bhuteshar Yakshis. Remote deity → worldly attendant. Became increasingly attendant but still deities.',
+    category: 'artworks',
+    related: ['yakshi-mirror', 'yakshi-clothes', 'tribhanga'],
+    period: 'Kushana',
+    images: ['images/img-004.png', 'images/img-005.png']
+  },
+  {
+    id: 'bodhgaya-buddha',
+    name: 'Bodhgaya Buddha of Year 64',
+    def: 'Snail shell curls. Thinned out a bit with less broad shoulders and a more introspective face. Not directly engaged with the viewer (Darshan is gone). Well away from the Yaksha tradition — human form of Buddha now fully established. Less physical, more spiritual representation. Cheerfulness is gone — heart-shaped face starts to emerge.',
+    category: 'artworks',
+    related: ['ushnisha', 'gupta-empire', 'katra-buddha', 'bala-buddha'],
+    period: 'Gupta',
+    image: 'images/img-009.png'
+  },
+  {
+    id: 'bodhisattva',
+    name: 'Bodhisattva',
+    def: 'A Buddha-to-be who has chosen to delay full enlightenment to help others achieve liberation. Bodhisattvas serve as bridges between the human world and the spiritual world. They remain elaborately dressed with jewelry and adornment, contrasted with the plain Buddha.',
+    category: 'concepts',
+    related: ['maitreya', 'avalokiteshvara', 'bodhisattva-gandhara'],
+    period: null
+  },
+  {
+    id: 'bodhisattva-gandhara',
+    name: 'Bodhisattva Figure from Gandhara',
+    def: 'Chose not to transcend to help people on earth. More important in some Buddhist traditions. Viewed as a bridge between our world and the spiritual world — connects with the divine, more remote Buddha. Still dressed elaborately with jewelry, hair, and adornment (prince-like) — contrasted with Buddha who has nothing. Slight knee bend (contrapposto / tribhanga). Heavy-ish drapery.',
+    category: 'artworks',
+    related: ['bodhisattva', 'maitreya', 'tribhanga', 'gandhara', 'kushana-empire'],
+    period: 'Kushana',
+    image: 'images/img-003.png'
+  },
+  {
+    id: 'friar-bala',
+    name: 'Friar Bala',
+    def: 'The patron/commissioner of the Bala Buddha/Bodhisattva of the Kushana year 3. A head monk who commissioned the famous Mathura Buddha.',
+    category: 'figures',
+    related: ['bala-buddha', 'mathura'],
+    period: null
+  },
+  {
+    id: 'bala-buddha',
+    name: 'Bala Buddha / Bodhisattva of Year 3',
+    def: 'Commissioned by head monk Bala. Balanced and sturdy build — large in size, sturdy, broad. Lion underneath symbolizes royal/sacred imagery. Buddha finally in human form in Mathura. Stylistically different from Yakshas but evolved from them. Bala Buddha is a transformed Yaksha. No flywhisk — abhaya mudra (freedom from fear gesture) instead. Fist clenched to hold robe, no gold or money. Would have been under umbrella. Lotus elements and other auspicious signs (lakshana).',
+    category: 'artworks',
+    related: ['abhaya-mudra', 'lakshana', 'mathura', 'kushana-empire', 'friar-bala', 'katra-buddha'],
+    period: 'Kushana',
+    image: 'images/img-007.png'
+  },
+  {
+    id: 'fasting-buddha',
+    name: 'Fasting Buddha',
+    def: 'Not plump or auspicious — a literalized depiction of the texts. The texts say his sternum touched his spine. Has way more ribs than actual humans. Followers of the Buddha are depicted under him. Everything is textural, follows gravity, and looks anatomically real. Has a beard here.',
+    category: 'artworks',
+    related: ['gandhara', 'kushana-empire'],
+    period: 'Kushana',
+    image: 'images/img-002.png'
+  },
+  {
+    id: 'gandhara',
+    name: 'Gandhara',
+    def: '1st to 3rd century ancient site. Second holy land of Buddhism. Known for its gray micaceous schist that was slightly glittery. Had significant contact with ancient Rome, which influenced the drapery style of sculptures. One of two Kushana centers of Buddhist art production.',
+    category: 'sites',
+    related: ['mathura', 'kushana-empire', 'hoti-mardan', 'fasting-buddha', 'shahji-ki-dheri'],
+    period: null
+  },
+  {
+    id: 'gupta-empire',
+    name: 'Gupta Empire',
+    def: '3rd to 6th century CE. Period of power and consolidation. The "Golden Age" of culture and art. Most surviving works are from the decline of this period. Buddhism spread rapidly and water routes opened up trade. Mathura is still the center and calls back to the Ashokan dynasty too.',
+    category: 'periods',
+    related: ['mathura', 'bodhgaya-buddha', 'kushana-empire'],
+    period: null
+  },
+  {
+    id: 'hariti',
+    name: 'Hariti',
+    def: 'A Buddhist goddess and protector of children. Pre-Buddhism: a demon who used to eat children. Then someone stole her own children and she started protecting kids instead. In contrapposto position. Different from Yakshis — not focused on showing the body, covered with drapery. Like the "so-called Athena" from 2nd century.',
+    category: 'figures',
+    related: ['tribhanga', 'gandhara'],
+    period: null,
+    image: 'images/img-008.png'
+  },
+  {
+    id: 'hoti-mardan',
+    name: 'Hoti Mardan Buddha',
+    def: 'The shrine is weird and oily because soldiers used to play a drinking game on it. The drapery is a strong connection to provincial Rome. Very different from the Bala Buddha. Has cranial features, a straight nose, and is not body-revealing. Bala looks straight at you — Hoti looks down. Weight not equally distributed — contrapposto stance.',
+    category: 'artworks',
+    related: ['gandhara', 'kushana-empire', 'tribhanga', 'bala-buddha'],
+    period: 'Kushana',
+    image: 'images/img-001.png'
+  },
+  {
+    id: 'kanishka',
+    name: 'Kanishka',
+    def: 'Emperor of the Kushana dynasty. Major patron of Buddhist art and architecture. The Kanishka Reliquary was made in his honor at Shah-ji-ki-Dheri.',
+    category: 'figures',
+    related: ['kushana-empire', 'kanishka-reliquary', 'shahji-ki-dheri'],
+    period: null
+  },
+  {
+    id: 'kanishka-reliquary',
+    name: 'Kanishka Reliquary from Shah-ji-ki-Dheri',
+    def: 'Relics inside were moved to Rangoon. Buddha seated with two attendant Bodhisattvas in robes with halos. The bottom has a relief with the Buddha and a lotus garland carried by dwarf Yakshas. Different in how it is depicted but what is depicted is the same. Geese + freedom from fear gesture. Material: gilded copper.',
+    category: 'artworks',
+    related: ['abhaya-mudra', 'kanishka', 'shahji-ki-dheri', 'gandhara', 'kushana-empire'],
+    period: 'Kushana',
+    image: 'images/img-000.png'
+  },
+  {
+    id: 'katra-buddha',
+    name: 'Katra Buddha',
+    def: 'Hands and feet have auspicious signs (lakshana). Wears a hat — probably covering baby hairs. White dots indicate Sikri sandstone. Was probably painted and gilded. Has a big presence with a round face, broad chest, and direct gaze. Freedom from fear gesture (abhaya mudra). Appears to be 3D but is just a deep relief. Yakshas behind him are attendant and now supporting Buddha. Large Bodhi tree in background. Seated on a lion throne (4 lions for 4 directions). Fleshiness and roundness.',
+    category: 'artworks',
+    related: ['abhaya-mudra', 'lakshana', 'mathura', 'kushana-empire', 'bala-buddha'],
+    period: 'Kushana',
+    image: 'images/img-006.png'
+  },
+  {
+    id: 'kushana-empire',
+    name: 'Kushana Empire',
+    def: 'ca. 30 to ca. 375 CE. This period marks the birth of the Buddha being depicted as a human. New centralized government. Centers of Mathura and Gandhara. Mathura used Red Sikri Sandstone; Gandhara used gray micaceous schist.',
+    category: 'periods',
+    related: ['mathura', 'gandhara', 'gupta-empire', 'kanishka'],
+    period: null
+  },
+  {
+    id: 'lakshana',
+    name: 'Lakshana',
+    def: 'Auspicious attributes of the Buddha. These include physical marks such as the ushnisha (cranial bump), urna (forehead dot), elongated earlobes, webbed fingers, and auspicious signs on hands and feet.',
+    category: 'iconography',
+    related: ['ushnisha', 'urna', 'katra-buddha', 'bala-buddha'],
+    period: null
+  },
+  {
+    id: 'maitreya',
+    name: 'Maitreya',
+    def: 'Buddha-to-come / future Buddha. Maitreya is a Bodhisattva who will appear on Earth in the future, attain complete enlightenment, and teach the pure dharma. Often depicted with royal adornments.',
+    category: 'figures',
+    related: ['bodhisattva', 'avalokiteshvara'],
+    period: null,
+    image: 'images/img-003.png'
+  },
+  {
+    id: 'mathura',
+    name: 'Mathura',
+    def: 'One of two centers under Kushana centralization. Known for its Red Sikri Sandstone. Center of early Buddha image production in human form. Still the center during the Gupta era.',
+    category: 'sites',
+    related: ['gandhara', 'kushana-empire', 'gupta-empire', 'katra-buddha', 'bala-buddha'],
+    period: null
+  },
+  {
+    id: 'maya',
+    name: 'Maya',
+    def: "The Buddha's mother. In Buddhist tradition, Maya gave birth to Siddhartha Gautama (the historical Buddha) in a grove at Lumbini. She is associated with the miraculous birth narrative.",
+    category: 'figures',
+    related: [],
+    period: null
+  },
+  {
+    id: 'nagarjunakonda',
+    name: 'Nagarjunakonda Buddha',
+    def: 'Elegant and elongated figure. Southern features distinct from the northern type. Snail shell curls. Elongated ears and subtle cranial bumps. One shoulder bare but not transparent drapery. (The one with no head — head is separate.)',
+    category: 'artworks',
+    related: ['gupta-empire', 'ushnisha', 'bodhgaya-buddha'],
+    period: 'Gupta'
+  },
+  {
+    id: 'parkham-yaksha',
+    name: 'Parkham Yaksha',
+    def: 'Made from Sikri sandstone. Massive in size. Has important features that can be compared to when we first see the Buddha in human form: frontality, flywhisk on shoulder, weight steady and balanced, large barrel-chested stomach. A proto-form for the Buddha image.',
+    category: 'artworks',
+    related: ['mathura', 'katra-buddha', 'bala-buddha'],
+    period: null
+  },
+  {
+    id: 'sarnath-buddha',
+    name: 'Seated Buddha from Sarnath',
+    def: 'Different from other seated Buddhas. Less engaged with the viewer. Different hand gesture. Cheerfulness is gone.',
+    category: 'artworks',
+    related: ['gupta-empire', 'bodhgaya-buddha'],
+    period: 'Gupta'
+  },
+  {
+    id: 'shahji-ki-dheri',
+    name: 'Shahji-ki-Dheri',
+    def: 'A site in Gandhara near present-day Peshawar (Pakistan). The location where the Kanishka Reliquary was found.',
+    category: 'sites',
+    related: ['gandhara', 'kanishka-reliquary', 'kanishka'],
+    period: null
+  },
+  {
+    id: 'tribhanga',
+    name: 'Tribhanga',
+    def: 'Contrapposto or the S-shaped curve of figures. The body shifts its weight onto one leg, creating a triple-bend (tri = three, bhanga = bend) at the neck, waist, and knee. Common in Buddhist and Hindu sculpture.',
+    category: 'iconography',
+    related: ['hariti', 'bhuteshar-yakshis', 'hoti-mardan', 'bodhisattva-gandhara'],
+    period: null
+  },
+  {
+    id: 'urna',
+    name: 'Urna',
+    def: 'A spiral or circular dot placed on the forehead of Buddhist images as an auspicious mark. One of the lakshana (auspicious marks) of the Buddha, it represents a tuft of white hair said to emit light.',
+    category: 'iconography',
+    related: ['lakshana', 'ushnisha'],
+    period: null
+  },
+  {
+    id: 'ushnisha',
+    name: 'Ushnisha',
+    def: 'The cranial bump at the crown of the Buddha\'s head. A sign of enlightenment and supernatural wisdom. One of the most important lakshana (auspicious marks) of the Buddha.',
+    category: 'iconography',
+    related: ['lakshana', 'urna'],
+    period: null
+  },
+  {
+    id: 'yakshi-mirror',
+    name: 'Yakshi with mirror (Bhuteshar)',
+    def: 'One of the Bhuteshar Yakshis. Birds peck at her hair thinking water beads are jewels. Engaged in mundane acts of cosmic completion. An example of Yakshis transitioning from remote nature deities to worldly attendant figures.',
+    category: 'artworks',
+    related: ['bhuteshar-yakshis', 'kushana-empire', 'mathura'],
+    period: 'Kushana',
+    image: 'images/img-004.png'
+  },
+  {
+    id: 'yakshi-clothes',
+    name: 'Yakshi putting on clothes (Bhuteshar)',
+    def: 'One of the Bhuteshar Yakshis. She is divine because she stands on other beings. An amorous couple (mithuna) appears at the top. People touch her breasts, genitalia, and feet for good luck — these areas are darker due to touching. An example of Yakshis performing acts of cosmic completion.',
+    category: 'artworks',
+    related: ['bhuteshar-yakshis', 'kushana-empire', 'mathura'],
+    period: 'Kushana',
+    image: 'images/img-005.png'
+  }
+];
+
+const ARTWORKS = [
+  {
+    id: 'kanishka-reliquary',
+    title: 'Kanishka Reliquary from Shah-ji-ki-Dheri',
+    img: 'images/img-000.png',
+    period: 'Kushana',
+    region: 'Gandhara',
+    material: 'Gilded copper',
+    def: 'Relics inside were moved to Rangoon. Buddha seated with two attendant Bodhisattvas in robes with halos. The bottom has a relief with the Buddha and a lotus garland carried by dwarf Yakshas. Different in how it is depicted but what is depicted is the same. Geese + freedom from fear gesture (abhaya mudra). Material: gilded copper.',
+    terms: ['abhaya-mudra', 'kanishka', 'shahji-ki-dheri', 'gandhara', 'kushana-empire']
+  },
+  {
+    id: 'hoti-mardan',
+    title: 'Hoti Mardan Buddha',
+    img: 'images/img-001.png',
+    period: 'Kushana',
+    region: 'Gandhara',
+    material: 'Gray micaceous schist',
+    def: 'The shrine is oily from soldiers\' drinking games. The drapery connects to provincial Rome. Very different from Bala Buddha. Has cranial features, straight nose, not body-revealing. Bala looks straight at you — Hoti looks down. Weight not equally distributed (contrapposto / tribhanga).',
+    terms: ['gandhara', 'kushana-empire', 'tribhanga', 'bala-buddha']
+  },
+  {
+    id: 'fasting-buddha',
+    title: 'Fasting Buddha',
+    img: 'images/img-002.png',
+    period: 'Kushana',
+    region: 'Gandhara',
+    material: 'Gray schist',
+    def: 'Not plump or auspicious — a literalized depiction of the texts. The texts say his sternum touched his spine. Has way more ribs than actual humans. Followers depicted beneath him. Everything is textural, follows gravity, and is real looking. Has a beard.',
+    terms: ['gandhara', 'kushana-empire']
+  },
+  {
+    id: 'bodhisattva-maitreya',
+    title: 'Bodhisattva Maitreya',
+    img: 'images/img-003.png',
+    period: 'Kushana',
+    region: 'Gandhara',
+    material: 'Gray micaceous schist',
+    def: 'Chose not to transcend to help people on earth. Viewed as a bridge between our world and the spiritual world. Still dressed elaborately with jewelry, hair, and adornment (prince-like) — contrasted with the plain Buddha. Slight knee bend (contrapposto). Heavy-ish drapery.',
+    terms: ['bodhisattva', 'maitreya', 'tribhanga', 'gandhara', 'kushana-empire']
+  },
+  {
+    id: 'yakshi-mirror',
+    title: 'Yakshi with mirror (Bhuteshar)',
+    img: 'images/img-004.png',
+    period: 'Kushana',
+    region: 'Mathura',
+    material: 'Red Sikri sandstone',
+    def: 'Birds peck at her hair thinking water beads are jewels. Engaged in mundane acts of cosmic completion (applying makeup). An example of Yakshis becoming attendant figures. Still divine because she stands on other beings.',
+    terms: ['bhuteshar-yakshis', 'kushana-empire', 'mathura', 'tribhanga']
+  },
+  {
+    id: 'yakshi-clothes',
+    title: 'Yakshi putting on clothes (Bhuteshar)',
+    img: 'images/img-005.png',
+    period: 'Kushana',
+    region: 'Mathura',
+    material: 'Red Sikri sandstone',
+    def: 'She is divine because she stands on other beings. An amorous couple (mithuna) appears at the top. People touch her breasts and feet for good luck — these areas are darker due to frequent touching. An example of Yakshis performing cosmic completion.',
+    terms: ['bhuteshar-yakshis', 'kushana-empire', 'mathura', 'tribhanga']
+  },
+  {
+    id: 'katra-buddha',
+    title: 'Katra Buddha',
+    img: 'images/img-006.png',
+    period: 'Kushana',
+    region: 'Mathura',
+    material: 'Red Sikri sandstone',
+    def: 'Hands and feet have auspicious signs. Wears a hat — probably covering baby hairs. White dots = Sikri sandstone. Was probably painted and gilded. Big presence: round face, broad chest, direct gaze. Freedom from fear gesture. Appears to be 3D but is just a deep relief. Yakshas behind him are now supporting Buddha. Large Bodhi tree behind. Seated on a lion throne (4 lions for 4 directions). Fleshiness and roundness.',
+    terms: ['abhaya-mudra', 'lakshana', 'mathura', 'kushana-empire', 'bala-buddha']
+  },
+  {
+    id: 'bala-buddha',
+    title: 'Bala Buddha of Year 3',
+    img: 'images/img-007.png',
+    period: 'Kushana',
+    region: 'Mathura',
+    material: 'Red Sikri sandstone',
+    def: 'Commissioned by head monk Bala. Balanced and sturdy build — large, broad, powerful. Lion underneath = royal/sacred imagery. Buddha in human form in Mathura. Bala Buddha is a transformed Yaksha: no flywhisk, abhaya mudra instead, fist clenched to hold robe, no gold. Would have been under umbrella. Lotus and auspicious signs.',
+    terms: ['abhaya-mudra', 'lakshana', 'mathura', 'kushana-empire', 'friar-bala', 'katra-buddha']
+  },
+  {
+    id: 'hariti',
+    title: 'The goddess Hariti with three children',
+    img: 'images/img-008.png',
+    period: 'Kushana',
+    region: 'Gandhara',
+    material: 'Gray schist',
+    def: 'A Buddhist goddess and protector of children. Pre-Buddhism demon who ate children; after her own children were stolen, she became a protector. In contrapposto position. Different from Yakshis — not focused on showing the body, covered with drapery. Like the "so-called Athena" from the 2nd century.',
+    terms: ['hariti', 'tribhanga', 'gandhara', 'kushana-empire']
+  },
+  {
+    id: 'bodhgaya-buddha',
+    title: 'Bodhgaya Buddha of Year 64',
+    img: 'images/img-009.png',
+    period: 'Gupta',
+    region: 'Mathura',
+    material: 'Sandstone',
+    def: 'Snail shell curls. Thinned out a bit with less broad shoulders and a more introspective face. Not directly engaged with the viewer (Darshan is gone). Well away from the Yaksha tradition now. Less physical, more spiritual representation. Cheerfulness is gone — heart-shaped face emerges.',
+    terms: ['ushnisha', 'gupta-empire', 'katra-buddha', 'bala-buddha']
+  }
+];
+
+const FILL_IN_BLANK = [
+  { sentence: 'The ___ is the cranial bump at the crown of the Buddha\'s head, a sign of enlightenment.', answer: 'Ushnisha', hint: 'It is also one of the lakshana.' },
+  { sentence: 'The ___ is the spiral dot placed on the forehead of Buddhist images as an auspicious mark.', answer: 'Urna', hint: 'It represents a tuft of white hair.' },
+  { sentence: '___ means "gesture of freedom from fear."', answer: 'Abhaya mudra', hint: 'It is the raised right-hand gesture.' },
+  { sentence: 'A ___ is a Buddha-to-be who delays full enlightenment to help others.', answer: 'Bodhisattva', hint: 'These figures wear jewelry and princely adornments.' },
+  { sentence: '___ refers to the S-shaped curve or contrapposto stance seen in figures.', answer: 'Tribhanga', hint: 'It means "three bends" in Sanskrit.' },
+  { sentence: '___ are the auspicious attributes of the Buddha.', answer: 'Lakshana', hint: 'They include the ushnisha, urna, and elongated earlobes.' },
+  { sentence: 'The ___ is the Bodhisattva of infinite compassion.', answer: 'Avalokiteshvara', hint: 'One of the most venerated Bodhisattvas.' },
+  { sentence: '___ is the future Buddha, also known as the Buddha-to-come.', answer: 'Maitreya', hint: 'Often depicted with royal adornments.' },
+  { sentence: '___ are Jain homage or votive tablets.', answer: 'Ayagapatta', hint: 'Flat stone tablets used for Jain devotional purposes.' },
+  { sentence: '___ was the Emperor of the Kushana dynasty.', answer: 'Kanishka', hint: 'His reliquary was found at Shah-ji-ki-Dheri.' },
+  { sentence: 'The Gupta Empire is often called the ___ of Indian culture and art.', answer: 'Golden Age', hint: 'A period of power, consolidation, and flourishing.' },
+  { sentence: 'The Bala Buddha was commissioned by a head monk named ___.', answer: 'Bala', hint: 'Also known as Friar Bala.' },
+  { sentence: '___ is the site in Gandhara near present-day Peshawar where the Kanishka Reliquary was found.', answer: 'Shahji-ki-Dheri', hint: 'Now in modern-day Pakistan.' },
+  { sentence: 'Mathura is known for its red ___ sandstone.', answer: 'Sikri', hint: 'This is the distinctive red material from Mathura.' },
+  { sentence: 'Gandhara is known for its gray ___ schist.', answer: 'micaceous', hint: 'It was slightly glittery in appearance.' },
+  { sentence: '___ is the mother of the Buddha.', answer: 'Maya', hint: 'She gave birth at Lumbini.' },
+  { sentence: 'The Parkham Yaksha carries a ___ on its shoulder.', answer: 'flywhisk', hint: 'This attribute was later dropped in Buddha images.' },
+  { sentence: 'The Bodhgaya Buddha of Year 64 is notable for its snail shell curls and ___ face shape.', answer: 'heart-shaped', hint: 'The face becomes more introspective in the Gupta period.' },
+  { sentence: 'Yakshis performing acts of cosmic completion include putting on ___ and clothes.', answer: 'makeup', hint: 'These mundane acts show their transition to worldly attendants.' }
+];
+
+const IMAGE_QUESTIONS = [
+  // Kanishka Reliquary (img-000)
+  { img: 'images/img-000.png', artTitle: 'Kanishka Reliquary', q: 'What material is the Kanishka Reliquary made from?', opts: ['Gilded copper', 'Gray schist', 'Sikri sandstone', 'Terracotta'], answer: 0, explanation: 'The Kanishka Reliquary is made from gilded copper. It was found at Shah-ji-ki-Dheri.' },
+  { img: 'images/img-000.png', artTitle: 'Kanishka Reliquary', q: 'Where were the relics from this reliquary eventually moved?', opts: ['Delhi', 'Rangoon', 'London', 'Peshawar'], answer: 1, explanation: 'The relics inside the Kanishka Reliquary were moved to Rangoon (modern Yangon, Myanmar).' },
+  { img: 'images/img-000.png', artTitle: 'Kanishka Reliquary', q: 'Which gesture is depicted on the Kanishka Reliquary?', opts: ['Dhyana mudra', 'Vitarka mudra', 'Abhaya mudra', 'Bhumisparsha mudra'], answer: 2, explanation: 'The Buddha on the Kanishka Reliquary displays the abhaya mudra — the gesture of freedom from fear.' },
+  // Hoti Mardan (img-001)
+  { img: 'images/img-001.png', artTitle: 'Hoti Mardan Buddha', q: 'The drapery of the Hoti Mardan Buddha connects it to which civilization?', opts: ['Ancient China', 'Provincial Rome', 'Mesopotamia', 'Ancient Egypt'], answer: 1, explanation: 'The Hoti Mardan Buddha\'s drapery style shows a strong connection to provincial Roman sculpture.' },
+  { img: 'images/img-001.png', artTitle: 'Hoti Mardan Buddha', q: 'How does the Hoti Mardan Buddha\'s gaze differ from the Bala Buddha?', opts: ['Hoti looks up, Bala looks down', 'Hoti looks down, Bala looks straight at you', 'Both look straight ahead', 'Both look down'], answer: 1, explanation: 'The Bala Buddha engages the viewer with a direct frontal gaze (darshan), while the Hoti Mardan Buddha looks downward.' },
+  { img: 'images/img-001.png', artTitle: 'Hoti Mardan Buddha', q: 'The Hoti Mardan Buddha belongs to which era and region?', opts: ['Gupta era, Mathura', 'Kushana era, Gandhara', 'Kushana era, Mathura', 'Gupta era, Gandhara'], answer: 1, explanation: 'The Hoti Mardan Buddha is from the Kushana era and was produced in the Gandhara region.' },
+  // Fasting Buddha (img-002)
+  { img: 'images/img-002.png', artTitle: 'Fasting Buddha', q: 'What text does the Fasting Buddha literalize?', opts: ['The Buddha had a muscular physique', 'His sternum touched his spine', 'He levitated above the ground', 'He wore elaborate jewelry'], answer: 1, explanation: 'The Fasting Buddha is a literalized depiction: the texts say his sternum touched his spine from fasting.' },
+  { img: 'images/img-002.png', artTitle: 'Fasting Buddha', q: 'What is distinctive about the Fasting Buddha\'s appearance compared to other Buddhas?', opts: ['Plump and auspicious', 'Wearing a crown', 'Emaciated with visible ribs and a beard', 'Seated on a lion throne'], answer: 2, explanation: 'The Fasting Buddha is emaciated with more ribs than an actual human, textured skin, and notably has a beard.' },
+  { img: 'images/img-002.png', artTitle: 'Fasting Buddha', q: 'What appears beneath the Fasting Buddha figure?', opts: ['Lotus flowers', 'Dwarf Yakshas', 'Followers of the Buddha', 'Animals'], answer: 2, explanation: 'Followers of the Buddha are depicted beneath the Fasting Buddha.' },
+  // Bodhisattva Maitreya (img-003)
+  { img: 'images/img-003.png', artTitle: 'Bodhisattva Maitreya', q: 'How is the Bodhisattva Maitreya dressed compared to the Buddha?', opts: ['Plain and unadorned', 'Elaborately with jewelry and hair adornment (prince-like)', 'In warrior armor', 'Draped in simple monk\'s robes'], answer: 1, explanation: 'Bodhisattvas remain elaborately dressed with jewelry and adornment, contrasting with the plain Buddha.' },
+  { img: 'images/img-003.png', artTitle: 'Bodhisattva Maitreya', q: 'What role does the Bodhisattva serve?', opts: ['The god of war', 'A bridge between our world and the spiritual world', 'The destroyer of evil', 'The keeper of sacred texts'], answer: 1, explanation: 'The Bodhisattva connects with the divine, remote Buddha and serves as a bridge between our world and the spiritual world.' },
+  { img: 'images/img-003.png', artTitle: 'Bodhisattva Maitreya', q: 'What bodily stance does the Bodhisattva Maitreya display?', opts: ['Rigid frontality', 'Slight knee bend (contrapposto)', 'Seated meditation', 'Arms raised overhead'], answer: 1, explanation: 'The Bodhisattva figure from Gandhara displays a slight knee bend — contrapposto or tribhanga stance.' },
+  // Yakshi with mirror (img-004)
+  { img: 'images/img-004.png', artTitle: 'Yakshi with mirror (Bhuteshar)', q: 'What are the birds doing to the Yakshi\'s hair?', opts: ['Building nests', 'Pecking at it thinking water beads are jewels', 'Flying away', 'Carrying flowers to her'], answer: 1, explanation: 'Birds peck at the Yakshi\'s hair because they mistake the water beads for jewels.' },
+  { img: 'images/img-004.png', artTitle: 'Yakshi with mirror (Bhuteshar)', q: 'What term describes the Yakshi\'s act of applying makeup?', opts: ['Tribhanga', 'Abhaya mudra', 'Cosmic completion', 'Lakshana'], answer: 2, explanation: 'The Bhuteshar Yakshis perform acts of "cosmic completion" — makeup, clothes, etc.' },
+  { img: 'images/img-004.png', artTitle: 'Yakshi with mirror (Bhuteshar)', q: 'The Bhuteshar Yakshis belong to which era?', opts: ['Gupta', 'Pre-Mauryan', 'Kushana', 'Pallava'], answer: 2, explanation: 'The Bhuteshar Yakshis are from the Kushana period, representing the evolution of Yakshi figures into attendants.' },
+  // Yakshi putting on clothes (img-005)
+  { img: 'images/img-005.png', artTitle: 'Yakshi putting on clothes (Bhuteshar)', q: 'Why are parts of this Yakshi figure darker (breasts, feet)?', opts: ['They were painted', 'People touch them for good luck', 'They were burned', 'They are a different stone'], answer: 1, explanation: 'People touch the breasts, genitalia, and feet of the Bhuteshar Yakshis for good luck, darkening those areas over centuries.' },
+  { img: 'images/img-005.png', artTitle: 'Yakshi putting on clothes (Bhuteshar)', q: 'What makes these Bhuteshar Yakshis divine beings rather than ordinary humans?', opts: ['They wear halos', 'They are standing on other beings', 'They carry lotus flowers', 'They have the ushnisha'], answer: 1, explanation: 'The Bhuteshar Yakshis are divine specifically because they are standing on other beings beneath them.' },
+  { img: 'images/img-005.png', artTitle: 'Yakshi putting on clothes (Bhuteshar)', q: 'What appears at the top of the Bhuteshar Yakshi statue?', opts: ['A halo', 'A lotus', 'A mithuna (amorous couple)', 'An umbrella'], answer: 2, explanation: 'Amorous couples (mithunas) appear at the top of the Bhuteshar Yakshi statues.' },
+  // Katra Buddha (img-006)
+  { img: 'images/img-006.png', artTitle: 'Katra Buddha', q: 'What does the Katra Buddha sit on?', opts: ['A lotus', 'A plain stone base', 'A lion throne with 4 lions for 4 directions', 'A coiled snake'], answer: 2, explanation: 'The Katra Buddha is seated on a lion throne with 4 lions representing the 4 directions.' },
+  { img: 'images/img-006.png', artTitle: 'Katra Buddha', q: 'What do the white dots in the Katra Buddha indicate?', opts: ['It was painted white', 'It is made from Sikri sandstone', 'Stars symbolizing enlightenment', 'Auspicious marks'], answer: 1, explanation: 'The white dots are characteristic of Sikri sandstone from Mathura.' },
+  { img: 'images/img-006.png', artTitle: 'Katra Buddha', q: 'What is notable about the Katra Buddha\'s three-dimensionality?', opts: ['It is fully in the round', 'It appears 3D but is actually a deep relief', 'It is a flat painting', 'It is a small miniature'], answer: 1, explanation: 'The Katra Buddha appears to be three-dimensional but is actually a deep relief carved from stone.' },
+  // Bala Buddha (img-007)
+  { img: 'images/img-007.png', artTitle: 'Bala Buddha of Year 3', q: 'Who commissioned the Bala Buddha?', opts: ['Emperor Kanishka', 'A head monk named Bala', 'Friar Ashoka', 'The goddess Hariti'], answer: 1, explanation: 'The Bala Buddha was commissioned by a head monk named Bala (Friar Bala).' },
+  { img: 'images/img-007.png', artTitle: 'Bala Buddha of Year 3', q: 'What does the lion beneath the Bala Buddha symbolize?', opts: ['The Buddha\'s enemies', 'Royal and sacred imagery', 'The Yaksha tradition', 'The Gupta dynasty'], answer: 1, explanation: 'The lion beneath the Bala Buddha represents royal and sacred imagery.' },
+  { img: 'images/img-007.png', artTitle: 'Bala Buddha of Year 3', q: 'What tradition does the Bala Buddha represent a transformation of?', opts: ['Jain sculpture', 'Yaksha figures', 'Greek sculpture', 'Persian art'], answer: 1, explanation: 'The Bala Buddha is described as a "transformed Yaksha" — it takes the Yaksha\'s powerful form and reinterprets it as the Buddha.' },
+  // Hariti (img-008)
+  { img: 'images/img-008.png', artTitle: 'Goddess Hariti with three children', q: 'What was Hariti before she became a Buddhist goddess?', opts: ['A Yakshi', 'A demon who ate children', 'A queen', 'A river goddess'], answer: 1, explanation: 'Hariti was originally a demon who ate children. After her own children were stolen, she reformed and became a protector of children.' },
+  { img: 'images/img-008.png', artTitle: 'Goddess Hariti with three children', q: 'How does the Hariti figure differ from Yakshi figures?', opts: ['She is unclothed', 'Not focused on showing the body — covered with drapery', 'She has no children', 'She is shown flying'], answer: 1, explanation: 'Unlike Yakshis, Hariti is not focused on displaying the body — she is covered with drapery, more like a Roman Athena.' },
+  { img: 'images/img-008.png', artTitle: 'Goddess Hariti with three children', q: 'What pose does Hariti display, similar to the "so-called Athena"?', opts: ['Seated meditation', 'Contrapposto', 'Frontality', 'Kneeling'], answer: 1, explanation: 'Hariti is in a contrapposto position (tribhanga), similar to the so-called Athena from the 2nd century.' },
+  // Bodhgaya Buddha (img-009)
+  { img: 'images/img-009.png', artTitle: 'Bodhgaya Buddha of Year 64', q: 'What type of hair curls does the Bodhgaya Buddha display?', opts: ['Straight locks', 'Snail shell curls', 'Braided hair', 'A shaved head'], answer: 1, explanation: 'The Bodhgaya Buddha of Year 64 has distinctive snail shell curls — a key feature of Gupta period Buddhas.' },
+  { img: 'images/img-009.png', artTitle: 'Bodhgaya Buddha of Year 64', q: 'Which period does the Bodhgaya Buddha of Year 64 belong to?', opts: ['Kushana', 'Pre-Mauryan', 'Gupta', 'Pallava'], answer: 2, explanation: 'The Bodhgaya Buddha of Year 64 belongs to the Gupta period.' },
+  { img: 'images/img-009.png', artTitle: 'Bodhgaya Buddha of Year 64', q: 'What does the Bodhgaya Buddha\'s lack of direct engagement with the viewer (Darshan) suggest?', opts: ['The sculptor was unskilled', 'A shift from physical to spiritual representation', 'It is an unfinished work', 'It depicts a human, not a Buddha'], answer: 1, explanation: 'The loss of direct darshan (eye contact/divine gaze) in the Bodhgaya Buddha signals a shift from physical presence to spiritual, introspective representation.' }
+];
+
+// =====================================================================
+// STATE
+// =====================================================================
+let currentLearnTab = 'terms';
+let currentMode = 'learn';
+let selectedTermId = null;
+let quizQuestions = [];
+let quizIndex = 0;
+let quizScore = 0;
+let quizResults = [];
+let quizNumQuestions = 20;
+let quizTypes = { vocab: true, fitb: true, image: true };
+let flashcardFlipped = false;
+
+// =====================================================================
+// CATEGORY COLOR MAP
+// =====================================================================
+const CAT_COLORS = {
+  iconography: '#1a3a5c',
+  figures: '#2a4a1a',
+  artworks: '#4a2a1a',
+  objects: '#3a1a3a',
+  concepts: '#1a3a30',
+  sites: '#3a3a1a',
+  periods: '#4a1a20'
+};
+const CAT_BG = {
+  iconography: '#dce8f0',
+  figures: '#e8f0dc',
+  artworks: '#f0e8dc',
+  objects: '#e8dce8',
+  concepts: '#dce8e4',
+  sites: '#e8e4dc',
+  periods: '#f0dce0'
+};
+
+function getCatDotColor(cat) {
+  return CAT_COLORS[cat] || '#888';
+}
+
+// =====================================================================
+// MODE / TAB SWITCHING
+// =====================================================================
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('panel-' + mode).classList.add('active');
+}
+
+function switchTab(tab) {
+  currentLearnTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// =====================================================================
+// TERMS TAB
+// =====================================================================
+function buildTermsList(filter = '') {
+  const list = document.getElementById('terms-list');
+  const filtered = TERMS.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()) || t.def.toLowerCase().includes(filter.toLowerCase()));
+  list.innerHTML = filtered.map(t => `
+    <div class="term-item ${t.id === selectedTermId ? 'active' : ''}" onclick="selectTerm('${t.id}')">
+      <span class="cat-dot" style="background:${getCatDotColor(t.category)}"></span>
+      <span>${t.name}</span>
+    </div>
+  `).join('');
+}
+
+function filterTerms(val) {
+  buildTermsList(val);
+}
+
+function selectTerm(id) {
+  selectedTermId = id;
+  buildTermsList(document.getElementById('terms-search-input').value);
+  const term = TERMS.find(t => t.id === id);
+  if (!term) return;
+  const detail = document.getElementById('term-detail');
+  const connections = TERMS.filter(t => t.related && t.related.includes(id));
+  let imageHtml = '';
+  if (term.image) {
+    imageHtml = `<div class="term-image-preview"><img src="${term.image}" alt="${term.name}"></div>`;
+  } else if (term.images) {
+    imageHtml = term.images.map(img => `<div class="term-image-preview" style="display:inline-block;max-width:180px;margin-right:8px;"><img src="${img}" alt="${term.name}"></div>`).join('');
+  }
+  detail.innerHTML = `
+    <h2>${term.name}</h2>
+    <div class="badges">
+      <span class="badge" style="background:${CAT_BG[term.category]};color:${CAT_COLORS[term.category]}">${term.category}</span>
+      ${term.period ? `<span class="badge badge-period">${term.period}</span>` : ''}
+    </div>
+    <p class="term-def">${term.def}</p>
+    ${term.related && term.related.length > 0 ? `
+      <div class="related-section">
+        <h4>Related Terms</h4>
+        <div class="chip-list">
+          ${term.related.map(r => {
+            const rt = TERMS.find(t => t.id === r);
+            return rt ? `<span class="chip" onclick="selectTerm('${r}')">${rt.name}</span>` : '';
+          }).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${connections.length > 0 ? `
+      <div class="related-section">
+        <h4>Mentioned in</h4>
+        <div class="chip-list">
+          ${connections.map(t => `<span class="chip" onclick="selectTerm('${t.id}')">${t.name}</span>`).join('')}
+        </div>
+      </div>
+    ` : ''}
+    ${imageHtml}
+  `;
+}
+
+// =====================================================================
+// ARTWORKS TAB
+// =====================================================================
+function buildArtworksGrid() {
+  const grid = document.getElementById('artworks-grid');
+  grid.innerHTML = ARTWORKS.map((a, i) => `
+    <div class="artwork-card" onclick="openArtworkModal(${i})">
+      <img class="artwork-card-img" src="${a.img}" alt="${a.title}" loading="lazy">
+      <div class="artwork-card-body">
+        <div class="artwork-card-title">${a.title}</div>
+        <div class="artwork-card-period">${a.period} &bull; ${a.region}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openArtworkModal(idx) {
+  const a = ARTWORKS[idx];
+  document.getElementById('modal-title').textContent = a.title;
+  document.getElementById('modal-img').src = a.img;
+  document.getElementById('modal-img').alt = a.title;
+  const relatedTerms = a.terms.map(tid => {
+    const t = TERMS.find(x => x.id === tid);
+    return t ? `<span class="chip" style="font-size:0.8rem" onclick="goToTerm('${tid}')">${t.name}</span>` : '';
+  }).join('');
+  document.getElementById('modal-info').innerHTML = `
+    <div class="badges">
+      <span class="badge badge-period">${a.period}</span>
+      <span class="badge badge-cat">${a.region}</span>
+      ${a.material ? `<span class="badge" style="background:#f0e8dc;color:#4a2a1a">${a.material}</span>` : ''}
+    </div>
+    <p class="modal-def">${a.def}</p>
+    <div class="modal-terms-section">
+      <h4>Illustrated Concepts</h4>
+      <div class="chip-list">${relatedTerms}</div>
+    </div>
+  `;
+  document.getElementById('artwork-modal').classList.add('open');
+}
+
+function openModal(type) {
+  // For timeline cards without images
+  const info = {
+    parkham: { title: 'Parkham Yaksha', def: 'Made from Sikri sandstone. Massive in size. Key features: frontality, flywhisk on shoulder, balanced weight, large barrel-chested stomach. A proto-form for the Buddha image.', period: 'Pre-Kushana', region: 'Mathura' },
+    didarganj: { title: 'Didarganj Yakshi', def: 'An example of the Yakshi tradition before the Bhuteshar Yakshis. Represents the transition from remote divine figures to more worldly attendants.', period: 'Pre-Kushana', region: 'Mathura' },
+    nagarjunakonda: { title: 'Nagarjunakonda Buddha', def: 'Elegant and elongated figure. Southern features distinct from northern type. Snail shell curls. Elongated ears and subtle cranial bumps. One shoulder bare but not transparent drapery. (The head is separate.)', period: 'Gupta', region: 'Southern India' },
+    sarnath: { title: 'Seated Buddha from Sarnath', def: 'Different from other seated Buddhas. Less engaged with the viewer. Different hands. Cheerfulness is gone.', period: 'Gupta', region: 'Sarnath' }
+  };
+  if (!info[type]) return;
+  const a = info[type];
+  document.getElementById('modal-title').textContent = a.title;
+  document.getElementById('modal-img').src = '';
+  document.getElementById('modal-img').style.display = 'none';
+  document.getElementById('modal-info').innerHTML = `
+    <div class="badges">
+      <span class="badge badge-period">${a.period}</span>
+      <span class="badge badge-cat">${a.region}</span>
+    </div>
+    <p class="modal-def">${a.def}</p>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:12px;font-style:italic;">No image available for this work.</p>
+  `;
+  document.getElementById('artwork-modal').classList.add('open');
+}
+
+function goToTerm(id) {
+  closeModal();
+  switchMode_direct('learn');
+  setTimeout(() => {
+    switchTab_direct('terms');
+    selectTerm(id);
+    document.getElementById('tab-terms').scrollIntoView({ behavior: 'smooth' });
+  }, 100);
+}
+
+function switchMode_direct(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === 0);
+  });
+  document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + mode).classList.add('active');
+}
+
+function switchTab_direct(tab) {
+  currentLearnTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.toLowerCase().trim() === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('artwork-modal').classList.remove('open');
+  document.getElementById('modal-img').style.display = '';
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('artwork-modal')) closeModal();
+}
+
+// =====================================================================
+// QUIZ MODE
+// =====================================================================
+function selectNum(btn, n) {
+  document.querySelectorAll('.num-option').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  quizNumQuestions = n;
+}
+
+function startQuiz() {
+  quizTypes = {
+    vocab: document.getElementById('type-vocab').checked,
+    fitb: document.getElementById('type-fitb').checked,
+    image: document.getElementById('type-image').checked
+  };
+  if (!quizTypes.vocab && !quizTypes.fitb && !quizTypes.image) {
+    alert('Please select at least one question type.');
+    return;
+  }
+  let pool = [];
+  if (quizTypes.vocab) {
+    pool = pool.concat(TERMS.map(t => ({ type: 'flashcard', term: t })));
+  }
+  if (quizTypes.fitb) {
+    pool = pool.concat(FILL_IN_BLANK.map(q => ({ type: 'fitb', q })));
+  }
+  if (quizTypes.image) {
+    pool = pool.concat(IMAGE_QUESTIONS.map(q => ({ type: 'imgq', q })));
+  }
+  shuffle(pool);
+  quizQuestions = pool.slice(0, quizNumQuestions === 999 ? pool.length : quizNumQuestions);
+  quizIndex = 0;
+  quizScore = 0;
+  quizResults = [];
+  document.getElementById('quiz-setup-panel').style.display = 'none';
+  document.getElementById('quiz-session-panel').style.display = 'block';
+  document.getElementById('quiz-results-panel').style.display = 'none';
+  renderQuestion();
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function updateProgress() {
+  const pct = (quizIndex / quizQuestions.length) * 100;
+  document.getElementById('quiz-progress-bar').style.width = pct + '%';
+  document.getElementById('quiz-q-counter').textContent = `Question ${quizIndex + 1} of ${quizQuestions.length}`;
+  document.getElementById('quiz-score-badge').textContent = `Score: ${quizScore}`;
+}
+
+function renderQuestion() {
+  if (quizIndex >= quizQuestions.length) {
+    showResults();
+    return;
+  }
+  updateProgress();
+  const q = quizQuestions[quizIndex];
+  const area = document.getElementById('quiz-question-area');
+  flashcardFlipped = false;
+  if (q.type === 'flashcard') {
+    renderFlashcard(q.term, area);
+  } else if (q.type === 'fitb') {
+    renderFITB(q.q, area);
+  } else if (q.type === 'imgq') {
+    renderImgQ(q.q, area);
+  }
+}
+
+// --- FLASHCARD ---
+function renderFlashcard(term, area) {
+  area.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px;font-family:sans-serif;font-size:0.85rem;color:var(--text-muted)">
+      Click the card to reveal the definition
+    </div>
+    <div class="flashcard-wrap" onclick="flipCard()" id="fc-wrap">
+      <div class="flashcard-inner" id="fc-inner">
+        <div class="flashcard-front">
+          <div class="fc-label">Term</div>
+          <div class="fc-term">${term.name}</div>
+          <div class="fc-hint">Click to flip</div>
+        </div>
+        <div class="flashcard-back">
+          <div class="fc-def">${term.def}</div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-actions" id="fc-actions" style="display:none">
+      <button class="fc-btn fc-btn-know" onclick="fcAnswer(true)">Got it!</button>
+      <button class="fc-btn fc-btn-review" onclick="fcAnswer(false)">Need more review</button>
+    </div>
+    <div style="text-align:center;margin-top:12px;">
+      <button class="fc-btn fc-btn-flip" onclick="flipCard()" style="font-size:0.8rem;padding:6px 18px;">Flip Card</button>
+    </div>
+  `;
+}
+
+function flipCard() {
+  flashcardFlipped = !flashcardFlipped;
+  const inner = document.getElementById('fc-inner');
+  if (inner) inner.classList.toggle('flipped', flashcardFlipped);
+  if (flashcardFlipped) {
+    const actions = document.getElementById('fc-actions');
+    if (actions) actions.style.display = 'flex';
+  }
+}
+
+function fcAnswer(knew) {
+  if (knew) quizScore++;
+  quizResults.push({ type: 'flashcard', label: quizQuestions[quizIndex].term.name, correct: knew, answer: knew ? 'Knew it' : 'Need review' });
+  quizIndex++;
+  renderQuestion();
+  updateProgress();
+}
+
+// --- FILL IN THE BLANK ---
+function renderFITB(q, area) {
+  const displaySentence = q.sentence.replace('___', '<span style="background:var(--bg3);padding:2px 10px;border-radius:4px;min-width:80px;display:inline-block;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
+  area.innerHTML = `
+    <div class="fitb-card">
+      <div class="fitb-q-label">Fill in the Blank</div>
+      <p class="fitb-sentence">${displaySentence}</p>
+      <div class="fitb-input-row">
+        <input class="fitb-input" type="text" id="fitb-input" placeholder="Your answer..." onkeydown="if(event.key==='Enter') submitFITB()">
+        <button class="fitb-submit" id="fitb-submit-btn" onclick="submitFITB()">Check</button>
+      </div>
+      <div class="feedback-box" id="fitb-feedback"></div>
+      <div style="text-align:center;margin-top:12px;color:var(--text-muted);font-size:0.8rem;font-family:sans-serif;">Hint: ${q.hint}</div>
+      <button class="next-btn" id="fitb-next-btn" style="display:none" onclick="nextQuestion()">Next Question &rarr;</button>
+    </div>
+  `;
+  setTimeout(() => { const inp = document.getElementById('fitb-input'); if(inp) inp.focus(); }, 50);
+}
+
+function submitFITB() {
+  const inp = document.getElementById('fitb-input');
+  const btn = document.getElementById('fitb-submit-btn');
+  const fb = document.getElementById('fitb-feedback');
+  const nextBtn = document.getElementById('fitb-next-btn');
+  if (!inp || inp.disabled) return;
+  const userAns = inp.value.trim().toLowerCase();
+  const q = quizQuestions[quizIndex].q;
+  const correctAns = q.answer.toLowerCase();
+  const isCorrect = userAns === correctAns ||
+    userAns === correctAns.split(' ').pop() ||
+    correctAns.toLowerCase().includes(userAns) && userAns.length > 3;
+  inp.disabled = true;
+  btn.disabled = true;
+  if (isCorrect) {
+    inp.classList.add('correct');
+    fb.textContent = '✓ Correct! The answer is: ' + q.answer;
+    fb.className = 'feedback-box correct show';
+    quizScore++;
+    quizResults.push({ type: 'fitb', label: q.sentence.replace('___', '___'), correct: true, answer: q.answer });
+  } else {
+    inp.classList.add('incorrect');
+    fb.textContent = '✗ Not quite. The correct answer is: ' + q.answer;
+    fb.className = 'feedback-box incorrect show';
+    quizResults.push({ type: 'fitb', label: q.sentence.replace('___', '___'), correct: false, answer: q.answer });
+  }
+  nextBtn.style.display = 'block';
+  updateProgress();
+}
+
+function nextQuestion() {
+  quizIndex++;
+  renderQuestion();
+  updateProgress();
+}
+
+// --- IMAGE QUESTION ---
+function renderImgQ(q, area) {
+  const letters = ['A', 'B', 'C', 'D'];
+  area.innerHTML = `
+    <div class="imgq-card">
+      <div class="imgq-img-wrap">
+        <img src="${q.img}" alt="${q.artTitle}">
+      </div>
+      <div class="imgq-content">
+        <div class="imgq-q-label">Image Question &bull; ${q.artTitle}</div>
+        <p class="imgq-question">${q.q}</p>
+        <div class="imgq-options" id="imgq-options">
+          ${q.opts.map((opt, i) => `
+            <div class="imgq-option" id="imgq-opt-${i}" onclick="selectImgOption(${i})">
+              <span class="option-letter">${letters[i]}</span>
+              <span>${opt}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="feedback-box" id="imgq-feedback"></div>
+        <button class="next-btn" id="imgq-next-btn" style="display:none" onclick="nextQuestion()">Next Question &rarr;</button>
+      </div>
+    </div>
+  `;
+}
+
+let imgqSelected = false;
+function selectImgOption(idx) {
+  if (imgqSelected) return;
+  imgqSelected = true;
+  const q = quizQuestions[quizIndex].q;
+  const opts = document.querySelectorAll('.imgq-option');
+  opts.forEach(o => o.classList.add('disabled'));
+  const fb = document.getElementById('imgq-feedback');
+  const nextBtn = document.getElementById('imgq-next-btn');
+  if (idx === q.answer) {
+    opts[idx].classList.add('correct');
+    fb.textContent = '✓ Correct! ' + q.explanation;
+    fb.className = 'feedback-box correct show';
+    quizScore++;
+    quizResults.push({ type: 'imgq', label: q.q, correct: true, answer: q.opts[q.answer] });
+  } else {
+    opts[idx].classList.add('incorrect');
+    opts[q.answer].classList.add('correct');
+    fb.textContent = '✗ Incorrect. ' + q.explanation;
+    fb.className = 'feedback-box incorrect show';
+    quizResults.push({ type: 'imgq', label: q.q, correct: false, answer: q.opts[q.answer] });
+  }
+  nextBtn.style.display = 'block';
+  updateProgress();
+}
+
+// Override nextQuestion to reset imgqSelected
+const _origNext = nextQuestion;
+function nextQuestion() {
+  imgqSelected = false;
+  quizIndex++;
+  renderQuestion();
+  updateProgress();
+}
+
+// --- RESULTS ---
+function showResults() {
+  document.getElementById('quiz-session-panel').style.display = 'none';
+  document.getElementById('quiz-results-panel').style.display = 'block';
+  const total = quizResults.length;
+  const correct = quizResults.filter(r => r.correct).length;
+  const pct = Math.round((correct / total) * 100);
+  let grade = '', msg = '';
+  if (pct >= 90) { grade = 'Excellent!'; msg = 'Outstanding work — you have a strong command of this material.'; }
+  else if (pct >= 80) { grade = 'Great Job!'; msg = 'Very solid understanding. Review the missed items to perfect your knowledge.'; }
+  else if (pct >= 70) { grade = 'Good Work'; msg = 'You know the fundamentals well. A bit more review will help.'; }
+  else if (pct >= 60) { grade = 'Keep Studying'; msg = 'You have a foundation, but some important concepts need more attention.'; }
+  else { grade = 'Needs Review'; msg = 'Spend more time with the Learn mode, especially the timeline and terms.'; }
+  document.getElementById('quiz-results-content').innerHTML = `
+    <div class="result-score-circle">
+      <div class="result-score-num">${correct}</div>
+      <div class="result-score-denom">out of ${total}</div>
+    </div>
+    <div class="result-grade">${grade} (${pct}%)</div>
+    <p class="result-msg">${msg}</p>
+    <div class="result-breakdown">
+      <h4>Question Breakdown</h4>
+      ${quizResults.map((r, i) => `
+        <div class="result-item">
+          <span class="result-icon">${r.correct ? '✅' : '❌'}</span>
+          <div>
+            <div class="result-q-text">${r.label.length > 80 ? r.label.substring(0, 77) + '...' : r.label}</div>
+            <div class="result-q-ans">Answer: ${r.answer}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <button class="retry-btn" onclick="retryQuiz()">Try Again</button>
+    <button class="retry-btn secondary" onclick="backToSetup()">New Quiz</button>
+  `;
+}
+
+function retryQuiz() {
+  quizIndex = 0;
+  quizScore = 0;
+  quizResults = [];
+  shuffle(quizQuestions);
+  document.getElementById('quiz-session-panel').style.display = 'block';
+  document.getElementById('quiz-results-panel').style.display = 'none';
+  renderQuestion();
+}
+
+function backToSetup() {
+  document.getElementById('quiz-setup-panel').style.display = 'block';
+  document.getElementById('quiz-session-panel').style.display = 'none';
+  document.getElementById('quiz-results-panel').style.display = 'none';
+}
+
+// =====================================================================
+// INIT
+// =====================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  buildTermsList();
+  buildArtworksGrid();
+});
+</script>
+</body>
+</html>
