@@ -1007,6 +1007,214 @@
                 padding: 1.5rem;
             }
         }
+
+        /* GRAPH MODE */
+        #graphTab {
+            position: relative;
+        }
+
+        .graph-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 1.5rem;
+            min-height: 600px;
+        }
+
+        .graph-canvas-wrapper {
+            background: #faf7f2;
+            border-radius: 8px;
+            border: 2px solid #d4c5b9;
+            position: relative;
+            overflow: hidden;
+            min-height: 580px;
+        }
+
+        #graphSvg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .graph-node circle {
+            cursor: pointer;
+            transition: r 0.15s ease;
+            stroke-width: 2;
+        }
+
+        .graph-node:hover circle {
+            stroke-width: 3;
+        }
+
+        .graph-node text {
+            pointer-events: none;
+            font-size: 10px;
+            font-family: 'Segoe UI', sans-serif;
+            fill: #2c1810;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .graph-edge {
+            stroke: #c9973a;
+            stroke-width: 1.5;
+            stroke-opacity: 0.4;
+            transition: stroke-opacity 0.2s ease;
+        }
+
+        .graph-edge.highlighted {
+            stroke: #6b2737;
+            stroke-width: 2.5;
+            stroke-opacity: 0.9;
+        }
+
+        .graph-node.dimmed circle {
+            opacity: 0.2;
+        }
+
+        .graph-node.dimmed text {
+            opacity: 0.2;
+        }
+
+        .graph-node.selected circle {
+            stroke-width: 4;
+            stroke: #2c1810;
+        }
+
+        .graph-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            padding: 0.8rem 1rem;
+            background: rgba(245,240,232,0.95);
+            border-top: 1px solid #d4c5b9;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.78rem;
+            color: #2c1810;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+
+        .graph-info-panel {
+            background: #faf7f2;
+            border-radius: 8px;
+            border: 2px solid #c9973a;
+            padding: 1.5rem;
+            overflow-y: auto;
+            max-height: 580px;
+        }
+
+        .graph-info-panel .placeholder {
+            color: #999;
+            text-align: center;
+            padding: 3rem 1rem;
+            font-style: italic;
+        }
+
+        .graph-info-panel h2 {
+            font-family: Georgia, serif;
+            color: #6b2737;
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .graph-info-section {
+            margin-bottom: 1.2rem;
+        }
+
+        .graph-info-section h4 {
+            color: #6b2737;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.4rem;
+            border-bottom: 1px solid #e8d5b9;
+            padding-bottom: 0.3rem;
+        }
+
+        .graph-info-section p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #2c1810;
+        }
+
+        .graph-connections-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .graph-conn-chip {
+            padding: 0.4rem 0.8rem;
+            background: #e8d5b9;
+            color: #6b2737;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .graph-conn-chip:hover {
+            background: #c9973a;
+            color: #f5f0e8;
+        }
+
+        .graph-hint {
+            font-size: 0.82rem;
+            color: #888;
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .graph-layout {
+                grid-template-columns: 1fr;
+            }
+            .graph-canvas-wrapper {
+                min-height: 380px;
+            }
+            .graph-info-panel {
+                max-height: 350px;
+            }
+        }
+
+        /* CONNECTION QUIZ */
+        .connection-question {
+            background: #faf7f2;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            border-left: 4px solid #c9973a;
+        }
+
+        .conn-explanation {
+            background: #fdf6e8;
+            border: 1px solid #c9973a;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #5a3d1a;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -1028,6 +1236,7 @@
                 <button class="tab-btn active" data-tab="terms">Terms</button>
                 <button class="tab-btn" data-tab="artworks">Artworks</button>
                 <button class="tab-btn" data-tab="timeline">Timeline</button>
+                <button class="tab-btn" data-tab="graph">Concept Graph</button>
             </div>
 
             <!-- TERMS TAB -->
@@ -1052,6 +1261,20 @@
             <div class="tab-content" id="timelineTab">
                 <div class="timeline-container" id="timelineContainer"></div>
             </div>
+
+            <!-- GRAPH TAB -->
+            <div class="tab-content" id="graphTab">
+                <div class="graph-layout">
+                    <div class="graph-canvas-wrapper" id="graphCanvasWrapper">
+                        <svg id="graphSvg"></svg>
+                        <div class="graph-legend" id="graphLegend"></div>
+                    </div>
+                    <div class="graph-info-panel" id="graphInfoPanel">
+                        <div class="placeholder">Click any node to explore its connections and context</div>
+                    </div>
+                </div>
+                <p class="graph-hint" style="margin-top:0.8rem;">Drag nodes to rearrange &bull; Click to see definition, relevance &amp; big picture &bull; Connected nodes highlight automatically</p>
+            </div>
         </div>
 
         <!-- QUIZ MODE -->
@@ -1071,6 +1294,9 @@
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" name="qtype" value="image" checked> Image Questions
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="qtype" value="connection" checked> Connections Quiz
                         </label>
                     </div>
                 </div>
@@ -1140,36 +1366,124 @@
     <script>
         // DATA
         const TERMS = [
-            { id: 1, name: "Abhaya mudra", definition: "gesture of freedom from fear", category: "iconography", related: ["Katra Buddha", "Bala Buddha", "Kanishka Reliquary"] },
-            { id: 2, name: "Avalokiteshvara", definition: "the Bodhisattva of infinite compassion", category: "figures" },
-            { id: 3, name: "Ayagapatta", definition: "Jain homage or votive tablets", category: "objects" },
-            { id: 4, name: "Bhuteshar Yakshis", definition: "Divine beings only because they are standing on other beings. Amorous couples at the top. Very much humans now. Yakshis involved in mundane acts. Birds pecking at their hair thinking water beads are jewels. Good example of Yakshis becoming attendant. Cosmic completion (makeup, clothes, etc.). People touch their breasts/feet for good luck. Remote → worldly. Became increasingly attendant but still deities.", category: "artworks", period: "Kushana" },
-            { id: 5, name: "Bodhgaya Buddha of Year 64", definition: "Snail shell curls. Thinned out with less broad shoulders and face more introspective. Not directly engaged with viewer (Darshan). Well away from Yaksha. Less physical, more spiritual representation. Cheerfulness is gone — heart shaped face starts to emerge.", category: "artworks", period: "Gupta", image: "img-009.png" },
-            { id: 6, name: "Bodhisattva", definition: "a Buddha-to-be who delays full enlightenment to help others", category: "concepts" },
-            { id: 7, name: "Bodhisattva Figure from Gandhara", definition: "Chose not to transcend to help people on earth. Bridge between our world and the spiritual world. Still dressed elaborately with jewelry and hair (prince-like) — contrasted with Buddha who has nothing. Slight knee bend (contrapposto). Heavy-ish drapery.", category: "artworks", period: "Kushana", image: "img-003.png" },
-            { id: 8, name: "Friar Bala", definition: "patron/commissioner of the Bala Buddha of the Kushana year 3", category: "figures" },
-            { id: 9, name: "Bala Buddha", definition: "Commissioned by head monk Bala (81 CE). Balanced + Sturdy build, large in size. Lion underneath = royal/sacred imagery. Buddha finally in human form in Mathura. Bala Buddha is a transformed Yaksha. No flywhisk, freedom from fear gesture, fist clenched to hold robe. Lotus elements and other auspicious signs.", category: "artworks", period: "Kushana", image: "img-007.png" },
-            { id: 10, name: "Fasting Buddha", definition: "Not plump or auspicious — a literalized depiction. Texts say his sternum touched his spine. Has way more ribs than actual humans. Followers of the Buddha depicted under him. Everything is textural, follows gravity, real looking. Has a beard.", category: "artworks", period: "Kushana", image: "img-002.png" },
-            { id: 11, name: "Gandhara", definition: "1st to 3rd century CE ancient site. Second holy land of Buddhism. Known for gray micaceous schist. Had contact with ancient Rome. One of two Kushana centers.", category: "sites" },
-            { id: 12, name: "Gupta Empire", definition: "3rd to 6th century CE. 'Golden Age' of culture and art. Buddhism spread rapidly. Mathura still the center.", category: "periods" },
-            { id: 13, name: "Hariti", definition: "Buddhist goddess and protector of children. Pre-Buddhism Demon who ate kids, then someone stole her kids and she started protecting children. Contrapposto position. Not focused on showing body — covered with drapery.", category: "figures", image: "img-008.png" },
-            { id: 14, name: "Hoti Mardan Buddha", definition: "Shrine is oily because soldiers played a drinking game on it. Drapery connects to provincial Rome. Very different from Bala Buddha. Cranial features, straight nose, not revealing of body. Bala looks straight at you — Hoti looks down. Weight not equally distributed — contrapposto.", category: "artworks", period: "Kushana", image: "img-001.png" },
-            { id: 15, name: "Kanishka", definition: "Emperor of the Kushana dynasty", category: "figures" },
-            { id: 16, name: "Kanishka Reliquary", definition: "Relics inside moved to Rangoon. Buddha seated with two attendant Bodhisattvas in robes with halos. Bottom has relief with Buddha and lotus garland carried by dwarf Yakshas. Geese + freedom from fear gesture. Material: gilded copper.", category: "artworks", period: "Kushana", image: "img-000.png" },
-            { id: 17, name: "Katra Buddha", definition: "Hands and feet have auspicious signs. Wears a hat — probably covering baby hairs. White dots = Sikri sandstone. Was probably painted and gilded. Round face, broad chest, direct gaze. Freedom from fear gesture. Appears 3D but is just a deep relief. Yakshas behind him are attendant and now supporting Buddha. Seated on lion throne (4 lions for 4 directions). Fleshiness and roundness.", category: "artworks", period: "Kushana", image: "img-006.png" },
-            { id: 18, name: "Kushana Empire", definition: "ca. 30 to ca. 375 CE. Birth of the Buddha depicted as a human. New centralized government. Centers of Mathura and Gandhara. Mathura = Red Sikri Sandstone. Gandhara = Schist material.", category: "periods" },
-            { id: 19, name: "Lakshana", definition: "auspicious attributes of the Buddha", category: "iconography" },
-            { id: 20, name: "Maitreya", definition: "Buddha-to-come / future Buddha", category: "figures" },
-            { id: 21, name: "Mathura", definition: "one of two centers under Kushan centralization. Known for its Red Sikri Sandstone.", category: "sites" },
-            { id: 22, name: "Maya", definition: "Buddha's mother", category: "figures" },
-            { id: 23, name: "Nagarjunakonda Buddha", definition: "Elegant + elongated figure. Southern features distinct from northern type. Snail shell curls. Elongated ears and subtle cranial bumps. One shoulder bare but not transparent drapery.", category: "artworks", period: "Gupta" },
-            { id: 24, name: "Parkham Yaksha", definition: "Made from Sikri sandstone. Massive in size. Features compared to first human-form Buddha depictions: frontality, flywhisk on shoulder, weight steady and balanced, large barrel-chested stomach.", category: "artworks" },
-            { id: 25, name: "Seated Buddha from Sarnath", definition: "Different from other seated Buddhas. Less engaged with viewer. Different hands. Cheerfulness is gone.", category: "artworks", period: "Gupta" },
-            { id: 26, name: "Shahji-ki-Dheri", definition: "site in Gandhara near present-day Peshawar", category: "sites" },
-            { id: 27, name: "Tribhanga", definition: "contrapposto or the S-shaped curve of figures", category: "iconography" },
-            { id: 28, name: "Urna", definition: "spiral or circular dot placed on the forehead of Buddhist images as an auspicious mark", category: "iconography" },
-            { id: 29, name: "Ushnisha", definition: "the cranial bump at the crown of the Buddha's head. A sign of enlightenment", category: "iconography" }
-        ];
+    { id: 1, name: "Abhaya mudra", definition: "gesture of freedom from fear", category: "iconography", period: null,
+      relevance: "One of the Buddha's most important hand gestures, signaling protection and reassurance to the viewer.",
+      bigPicture: "Appears across both Mathura and Gandhara styles, linking iconography directly to the Yaksha tradition of auspicious gestures.",
+      related: ["Katra Buddha", "Bala Buddha", "Kanishka Reliquary"],
+      connects: ["Katra Buddha", "Bala Buddha", "Kanishka Reliquary", "Lakshana"] },
+    { id: 2, name: "Avalokiteshvara", definition: "the Bodhisattva of infinite compassion", category: "figures", period: null,
+      relevance: "The most important Bodhisattva in Mahayana Buddhism, embodying compassion for all sentient beings.",
+      bigPicture: "Represents the Mahayana ideal — delaying enlightenment to aid humanity — which gave Buddhist art a new category of divine being distinct from the Buddha.",
+      connects: ["Bodhisattva", "Kanishka Reliquary"] },
+    { id: 3, name: "Ayagapatta", definition: "Jain homage or votive tablets", category: "objects", period: null,
+      relevance: "Shows the overlap between Jain and Buddhist devotional practices at Mathura.",
+      bigPicture: "Demonstrates that Mathura was a multi-religious center before Buddhist dominance — context for understanding why Buddha images emerged there.",
+      connects: ["Mathura"] },
+    { id: 4, name: "Bhuteshar Yakshis", definition: "Divine beings only because they are standing on other beings. Amorous couples at the top. Very much humans now. Yakshis involved in mundane acts. Birds pecking at their hair thinking water beads are jewels. Good example of Yakshis becoming attendant. Cosmic completion (makeup, clothes, etc.). People touch their breasts/feet for good luck. Remote → worldly. Became increasingly attendant but still deities.", category: "artworks", period: "Kushana",
+      relevance: "Marks the critical transition of Yakshis from independent deities to attendants of the Buddha.",
+      bigPicture: "Reflects how Buddhism absorbed local folk traditions — Yakshas/Yakshis evolved from autonomous divine beings into supporters of the central Buddhist narrative.",
+      connects: ["Kushana Empire", "Tribhanga", "Parkham Yaksha", "Mathura"] },
+    { id: 5, name: "Bodhgaya Buddha of Year 64", definition: "Snail shell curls. Thinned out with less broad shoulders and face more introspective. Not directly engaged with viewer (Darshan). Well away from Yaksha. Less physical, more spiritual representation. Cheerfulness is gone — heart shaped face starts to emerge.", category: "artworks", period: "Gupta", image: "img-009.png",
+      relevance: "A pivotal Gupta-era work showing the shift from Kushana physical vitality to spiritual introspection.",
+      bigPicture: "Embodies the full arc of Buddhist art's evolution — the physical vigor of Yaksha-derived Buddhas gives way to a transcendent, inward spiritual ideal.",
+      connects: ["Gupta Empire", "Ushnisha", "Mathura", "Bala Buddha"] },
+    { id: 6, name: "Bodhisattva", definition: "a Buddha-to-be who delays full enlightenment to help others", category: "concepts", period: null,
+      relevance: "Central concept in Mahayana Buddhism that created an entirely new category of divine being in Buddhist art.",
+      bigPicture: "The Bodhisattva ideal transformed Buddhist art by introducing figures depicted as princes — elaborately adorned, in contrast to the monk-like Buddha — showing two models of the ideal being.",
+      connects: ["Bodhisattva Figure from Gandhara", "Avalokiteshvara", "Maitreya", "Kanishka Reliquary"] },
+    { id: 7, name: "Bodhisattva Figure from Gandhara", definition: "Chose not to transcend to help people on earth. Bridge between our world and the spiritual world. Still dressed elaborately with jewelry and hair (prince-like) — contrasted with Buddha who has nothing. Slight knee bend (contrapposto). Heavy-ish drapery.", category: "artworks", period: "Kushana", image: "img-003.png",
+      relevance: "Prime example of Gandharan Bodhisattva imagery with Hellenistic naturalism blended with Buddhist iconography.",
+      bigPicture: "Shows how Gandhara's contact with Rome produced a hybrid visual language — the same Bodhisattva ideal expressed through contrapposto and Roman drapery rather than Indian sculptural tradition.",
+      connects: ["Gandhara", "Kushana Empire", "Bodhisattva", "Maitreya", "Tribhanga"] },
+    { id: 8, name: "Friar Bala", definition: "patron/commissioner of the Bala Buddha of the Kushana year 3", category: "figures", period: null,
+      relevance: "The patron who commissioned the first known human-form Buddha in Mathura, making him a turning-point figure in Buddhist art.",
+      bigPicture: "His sponsorship of the Bala Buddha marks the decisive moment when Buddhism gave the Buddha a human face at Mathura.",
+      connects: ["Bala Buddha", "Mathura"] },
+    { id: 9, name: "Bala Buddha", definition: "Commissioned by head monk Bala (81 CE). Balanced + Sturdy build, large in size. Lion underneath = royal/sacred imagery. Buddha finally in human form in Mathura. Bala Buddha is a transformed Yaksha. No flywhisk, freedom from fear gesture, fist clenched to hold robe. Lotus elements and other auspicious signs.", category: "artworks", period: "Kushana", image: "img-007.png",
+      relevance: "The first human-form Buddha in Mathura (81 CE), marking the transformation of Yaksha vitality into Buddhist iconography.",
+      bigPicture: "Directly transforms the Parkham Yaksha tradition — same frontality and physical power — into the first standing human Buddha, anchoring Mathura's role in Buddhist art history.",
+      connects: ["Mathura", "Kushana Empire", "Friar Bala", "Abhaya mudra", "Parkham Yaksha", "Lakshana", "Katra Buddha"] },
+    { id: 10, name: "Fasting Buddha", definition: "Not plump or auspicious — a literalized depiction. Texts say his sternum touched his spine. Has way more ribs than actual humans. Followers of the Buddha depicted under him. Everything is textural, follows gravity, real looking. Has a beard.", category: "artworks", period: "Kushana", image: "img-002.png",
+      relevance: "One of Gandhara's most dramatic images — a hyper-realistic depiction of the Buddha's asceticism that no other region produced.",
+      bigPicture: "Gandhara's Hellenistic realism allowed for a literalized textual account of the Buddha's fasting; contrasts directly with Mathura's idealized, auspicious forms to show the two regions' opposed aesthetics.",
+      connects: ["Gandhara", "Kushana Empire"] },
+    { id: 11, name: "Gandhara", definition: "1st to 3rd century CE ancient site. Second holy land of Buddhism. Known for gray micaceous schist. Had contact with ancient Rome. One of two Kushana centers.", category: "sites", period: null,
+      relevance: "One of the two great centers of Kushana Buddhist art, distinguished by Hellenistic-Roman influence.",
+      bigPicture: "Gandhara's position on the Silk Road brought Roman naturalism into Buddhist iconography, creating the hybrid Gandharan style that influenced Buddhist art across Asia.",
+      connects: ["Kushana Empire", "Shahji-ki-Dheri", "Mathura", "Hoti Mardan Buddha", "Fasting Buddha", "Bodhisattva Figure from Gandhara", "Kanishka Reliquary"] },
+    { id: 12, name: "Gupta Empire", definition: "3rd to 6th century CE. 'Golden Age' of culture and art. Buddhism spread rapidly. Mathura still the center.", category: "periods", period: null,
+      relevance: "The 'Golden Age' of Indian culture when Buddhist art reached its classical perfection and spread across Asia.",
+      bigPicture: "The Gupta synthesis built on Kushana foundations — Mathura remained the center but images evolved from physical vitality to spiritual transcendence, setting the canonical model for Buddhist art.",
+      connects: ["Mathura", "Bodhgaya Buddha of Year 64", "Seated Buddha from Sarnath", "Nagarjunakonda Buddha", "Hariti", "Kushana Empire"] },
+    { id: 13, name: "Hariti", definition: "Buddhist goddess and protector of children. Pre-Buddhism Demon who ate kids, then someone stole her kids and she started protecting children. Contrapposto position. Not focused on showing body — covered with drapery.", category: "figures", image: "img-008.png", period: "Gupta",
+      relevance: "Shows how Buddhism transformed local demon figures into Buddhist protectors through narrative inversion.",
+      bigPicture: "Hariti's transformation from child-eating demon to protector mirrors the broader absorption of folk religion into Buddhism — the same process that converted Yakshas into Buddha attendants.",
+      connects: ["Gupta Empire", "Tribhanga", "Bhuteshar Yakshis"] },
+    { id: 14, name: "Hoti Mardan Buddha", definition: "Shrine is oily because soldiers played a drinking game on it. Drapery connects to provincial Rome. Very different from Bala Buddha. Cranial features, straight nose, not revealing of body. Bala looks straight at you — Hoti looks down. Weight not equally distributed — contrapposto.", category: "artworks", period: "Kushana", image: "img-001.png",
+      relevance: "Key example of how Gandhara absorbed Roman provincial style into Buddha imagery.",
+      bigPicture: "The direct contrast with the Bala Buddha encapsulates the Mathura vs. Gandhara divide — Gandhara's Roman naturalism vs. Mathura's Yaksha-derived vitality as two paths to depicting the same being.",
+      connects: ["Gandhara", "Kushana Empire", "Tribhanga", "Bala Buddha"] },
+    { id: 15, name: "Kanishka", definition: "Emperor of the Kushana dynasty", category: "figures", period: null,
+      relevance: "The emperor whose reign unified the Kushana dynasty and created the political conditions for Buddhist art to flourish.",
+      bigPicture: "His patronage created the stability that enabled simultaneous Buddhist art production in Mathura and Gandhara, giving Buddhism its first human-form Buddha images.",
+      connects: ["Kushana Empire", "Kanishka Reliquary"] },
+    { id: 16, name: "Kanishka Reliquary", definition: "Relics inside moved to Rangoon. Buddha seated with two attendant Bodhisattvas in robes with halos. Bottom has relief with Buddha and lotus garland carried by dwarf Yakshas. Geese + freedom from fear gesture. Material: gilded copper.", category: "artworks", period: "Kushana", image: "img-000.png",
+      relevance: "Combines relic veneration, Buddha imagery, Bodhisattvas, and Yaksha supporters in one object — a synthesis of Kushana Buddhist art.",
+      bigPicture: "This single object encapsulates the Kushana visual program: imperial patronage (Kanishka), Gandharan style, Bodhisattva attendants, and lingering Yaksha figures — all in service of the Buddha's relics.",
+      connects: ["Gandhara", "Shahji-ki-Dheri", "Kushana Empire", "Kanishka", "Abhaya mudra", "Bodhisattva"] },
+    { id: 17, name: "Katra Buddha", definition: "Hands and feet have auspicious signs. Wears a hat — probably covering baby hairs. White dots = Sikri sandstone. Was probably painted and gilded. Round face, broad chest, direct gaze. Freedom from fear gesture. Appears 3D but is just a deep relief. Yakshas behind him are attendant and now supporting Buddha. Seated on lion throne (4 lions for 4 directions). Fleshiness and roundness.", category: "artworks", period: "Kushana", image: "img-006.png",
+      relevance: "The earliest surviving Buddha image from Mathura, showing the full Yaksha-to-Buddha transformation in stone.",
+      bigPicture: "Shows how the Yaksha aesthetic — physical presence, frontality, auspicious power — was entirely redeployed in service of Buddhist iconography, with Yakshas now literally supporting the Buddha from behind.",
+      connects: ["Mathura", "Kushana Empire", "Abhaya mudra", "Lakshana", "Parkham Yaksha", "Bala Buddha"] },
+    { id: 18, name: "Kushana Empire", definition: "ca. 30 to ca. 375 CE. Birth of the Buddha depicted as a human. New centralized government. Centers of Mathura and Gandhara. Mathura = Red Sikri Sandstone. Gandhara = Schist material.", category: "periods", period: null,
+      relevance: "The first empire to depict the Buddha in human form, inaugurating one of the greatest transformations in world art.",
+      bigPicture: "By unifying trade routes connecting Rome, Central Asia, and India, the Kushana created conditions for the great leap in Buddhist art — the Buddha finally shown as human, simultaneously at Mathura and Gandhara.",
+      connects: ["Mathura", "Gandhara", "Gupta Empire", "Kanishka"] },
+    { id: 19, name: "Lakshana", definition: "auspicious attributes of the Buddha", category: "iconography", period: null,
+      relevance: "The visual vocabulary that marks the Buddha as a superhuman being, distinguishing him from ordinary humans in art.",
+      bigPicture: "These attributes bridged the Yaksha tradition — where physical power signified spiritual authority — with specifically Buddhist iconography, giving artists a codified system for depicting enlightenment.",
+      connects: ["Ushnisha", "Urna", "Abhaya mudra", "Bala Buddha", "Katra Buddha", "Parkham Yaksha"] },
+    { id: 20, name: "Maitreya", definition: "Buddha-to-come / future Buddha", category: "figures", period: null,
+      relevance: "The future Buddha, uniquely depicted in Gandharan art as an elaborately adorned prince — contrasting with the renunciant Buddha.",
+      bigPicture: "Maitreya's prince-like appearance in Gandharan art establishes the visual distinction between Buddhas (renunciant, simple) and Bodhisattvas (princely, adorned) that persists across Asian Buddhist art.",
+      connects: ["Bodhisattva", "Bodhisattva Figure from Gandhara"] },
+    { id: 21, name: "Mathura", definition: "one of two centers under Kushan centralization. Known for its Red Sikri Sandstone.", category: "sites", period: null,
+      relevance: "The primary continuous center of Indian Buddhist art, from pre-Buddhist Yaksha figures through Gupta-era Buddhas.",
+      bigPicture: "Mathura's unbroken tradition — Parkham Yaksha → Katra/Bala Buddhas → Gupta Buddhas — provides the clearest single narrative of how Indian Buddhist art evolved over 500 years.",
+      connects: ["Kushana Empire", "Gupta Empire", "Gandhara", "Bala Buddha", "Katra Buddha", "Parkham Yaksha"] },
+    { id: 22, name: "Maya", definition: "Buddha's mother", category: "figures", period: null,
+      relevance: "The Buddha's mother, whose miraculous birth story was a major subject of narrative Buddhist sculpture.",
+      bigPicture: "Maya's miraculous childbirth scene anchored the biographical narrative cycle that gave Buddhist art a human story to tell alongside abstract iconography.",
+      connects: ["Bodhisattva"] },
+    { id: 23, name: "Nagarjunakonda Buddha", definition: "Elegant + elongated figure. Southern features distinct from northern type. Snail shell curls. Elongated ears and subtle cranial bumps. One shoulder bare but not transparent drapery.", category: "artworks", period: "Gupta",
+      relevance: "Demonstrates the southern regional variant of Gupta Buddhist art, with distinct facial features and drapery treatment.",
+      bigPicture: "Shows that the Gupta style spread beyond its northern heartland while developing regional characteristics — the Gupta ideal was adaptable, not monolithic.",
+      connects: ["Gupta Empire"] },
+    { id: 24, name: "Parkham Yaksha", definition: "Made from Sikri sandstone. Massive in size. Features compared to first human-form Buddha depictions: frontality, flywhisk on shoulder, weight steady and balanced, large barrel-chested stomach.", category: "artworks", period: null,
+      relevance: "The direct formal precursor to Mathura's first Buddha images — the same stone, same frontality, same physical power.",
+      bigPicture: "Understanding the Parkham Yaksha is understanding where Buddha images came from: the Bala and Katra Buddhas are formally identical to this figure but stripped of the flywhisk and re-inscribed as the Buddha.",
+      connects: ["Mathura", "Bala Buddha", "Katra Buddha", "Lakshana"] },
+    { id: 25, name: "Seated Buddha from Sarnath", definition: "Different from other seated Buddhas. Less engaged with viewer. Different hands. Cheerfulness is gone.", category: "artworks", period: "Gupta",
+      relevance: "Represents the pinnacle of Gupta Buddha imagery at the most sacred site in Buddhism — where the Buddha gave his first sermon.",
+      bigPicture: "Sarnath (the site of the first sermon) was the ideal location for the quintessential Gupta Buddha — spiritual perfection replacing the Kushana ideal of physical vitality.",
+      connects: ["Gupta Empire", "Mathura"] },
+    { id: 26, name: "Shahji-ki-Dheri", definition: "site in Gandhara near present-day Peshawar", category: "sites", period: null,
+      relevance: "The discovery site of the Kanishka Reliquary — a crossroads of Roman, Central Asian, and Indian cultures.",
+      bigPicture: "This site near Peshawar exemplifies why Gandhara produced its hybrid style: at the junction of multiple trade routes, cultural influences converged and transformed Buddhist art.",
+      connects: ["Gandhara", "Kanishka Reliquary"] },
+    { id: 27, name: "Tribhanga", definition: "contrapposto or the S-shaped curve of figures", category: "iconography", period: null,
+      relevance: "The S-curve pose that humanizes divine figures by giving them natural movement instead of stiff frontality.",
+      bigPicture: "Tribhanga's growing presence across both Mathura and Gandhara marks the increasing naturalism of Indian sculpture — figures evolve from the rigid frontality of the Parkham Yaksha toward fully dynamic human movement.",
+      connects: ["Bodhisattva Figure from Gandhara", "Hoti Mardan Buddha", "Hariti", "Bhuteshar Yakshis"] },
+    { id: 28, name: "Urna", definition: "spiral or circular dot placed on the forehead of Buddhist images as an auspicious mark", category: "iconography", period: null,
+      relevance: "A key Lakshana that marks the Buddha's enlightened nature and distinguishes him from ordinary human depictions.",
+      bigPicture: "The urna was reinterpreted from earlier Yaksha imagery into a specifically Buddhist auspicious mark — part of the visual vocabulary that converted physical Yaksha power into spiritual Buddha authority.",
+      connects: ["Lakshana", "Ushnisha"] },
+    { id: 29, name: "Ushnisha", definition: "the cranial bump at the crown of the Buddha's head. A sign of enlightenment", category: "iconography", period: null,
+      relevance: "The most visually distinctive marker of the Buddha's enlightened cranium, present in all Buddha images.",
+      bigPicture: "The ushnisha evolves across the periods — a simple bump in Kushana works, snail-shell curls in Gupta works — making it a reliable index of the stylistic evolution from the Katra Buddha to the Bodhgaya Buddha of Year 64.",
+      connects: ["Lakshana", "Urna", "Bodhgaya Buddha of Year 64"] }
+];
 
         const ARTWORKS = [
             { title: "Kanishka Reliquary", image: "img-000.png", period: "Kushana", location: "Shah-ji-ki-Dheri", description: "Gilded copper reliquary housing relics. Features Buddha seated with two attendant Bodhisattvas in robes with halos.", concepts: ["Gilded copper construction", "Buddha with attendant Bodhisattvas", "Reliquaries in Buddhism", "Freedom from fear gesture (Abhaya mudra)", "Dwarf Yakshas and geese motifs"] },
@@ -1288,6 +1602,21 @@
                 ]
             }
         ];
+
+        const CONNECTION_QUESTIONS = [
+    { question: "What connects the Bala Buddha and the Parkham Yaksha?", options: ["Both are from Gandhara", "The Bala Buddha transforms the Yaksha tradition into Buddhist form", "Both were commissioned by Kanishka", "Both use the same hand gesture"], correct: 1, explanation: "The Bala Buddha directly transforms the Yaksha aesthetic — same frontality and physical power — into the first human-form Buddha at Mathura." },
+    { question: "What material and style link Mathura, the Katra Buddha, and the Parkham Yaksha?", options: ["Gray micaceous schist and Roman drapery", "Red Sikri sandstone and frontal Yaksha tradition", "Gilded copper and contrapposto", "Terracotta and Jain votive style"], correct: 1, explanation: "All three are from Mathura and use red Sikri sandstone. The Parkham Yaksha's frontal, barrel-chested form directly precedes the Katra and Bala Buddhas." },
+    { question: "What stylistic trait connects the Hoti Mardan Buddha, Bodhisattva Figure from Gandhara, and Hariti?", options: ["All from the Gupta period", "All display the Abhaya mudra", "All show tribhanga (contrapposto)", "All are from Mathura"], correct: 2, explanation: "Tribhanga — the S-shaped contrapposto pose — links these figures across both Gandhara and Gupta traditions, reflecting growing naturalism." },
+    { question: "Which empire directly connects Mathura and Gandhara as paired art centers?", options: ["Gupta Empire", "Maurya Empire", "Kushana Empire", "Pallava Empire"], correct: 2, explanation: "The Kushana Empire (ca. 30–375 CE) centralized power and simultaneously patronized Buddhist art at both Mathura (red sandstone) and Gandhara (gray schist)." },
+    { question: "What connects the Kanishka Reliquary, Bala Buddha, and Katra Buddha iconographically?", options: ["All depict the Fasting Buddha", "All display the Abhaya mudra (freedom from fear gesture)", "All use tribhanga stance", "All are made from gray schist"], correct: 1, explanation: "The Abhaya mudra appears in all three works, linking Gandharan and Mathuran Buddha images through shared iconographic language." },
+    { question: "What connects Hariti and the Bhuteshar Yakshis in their relationship to Buddhism?", options: ["Both were commissioned by the same patron", "Both are from Gandhara", "Both show the transformation of pre-Buddhist figures into Buddhist attendants/protectors", "Both depict the Abhaya mudra"], correct: 2, explanation: "Both Hariti (demon turned child-protector) and the Bhuteshar Yakshis (divine beings turned attendants) illustrate Buddhism absorbing and redefining local folk religion." },
+    { question: "What distinguishes Gupta-era Buddhas like the Bodhgaya Buddha from Kushana-era ones like the Bala Buddha?", options: ["Gupta Buddhas are larger in scale", "Gupta Buddhas shift from physical vitality to spiritual introspection (snail curls, heart-shaped face, inward gaze)", "Gupta Buddhas show Roman drapery influence", "Gupta Buddhas always show the Fasting pose"], correct: 1, explanation: "The Gupta evolution — thinner form, snail-shell curls, introspective heart-shaped face, less direct gaze — marks the move from Yaksha-derived physical authority to transcendent spirituality." },
+    { question: "What connects the concepts of Ushnisha, Urna, and Abhaya mudra?", options: ["All are examples of Tribhanga", "All are Lakshana — auspicious attributes marking the Buddha's superhuman nature", "All originate in Gandharan art", "All are types of hand gestures"], correct: 1, explanation: "Ushnisha, Urna, and Abhaya mudra are all Lakshana — the codified visual attributes that mark the Buddha as a being beyond ordinary human nature." },
+    { question: "What role does Friar Bala's patronage connect to the broader Kushana art narrative?", options: ["He introduced Roman drapery to Mathura", "His commission of the Bala Buddha marks when Buddhism first gave the Buddha a human face at Mathura", "He founded the site at Gandhara", "He brought the Kanishka Reliquary to Rangoon"], correct: 1, explanation: "Friar Bala commissioned the Bala Buddha (81 CE), the first human-form Buddha at Mathura — his act of patronage was the decisive turning point in the representation of the Buddha." },
+    { question: "What connects Maitreya and Avalokiteshvara to the concept of Bodhisattva?", options: ["Both are alternate names for the Buddha", "Both are sites where Buddhist art flourished", "Both are specific Bodhisattvas — the future Buddha and the Bodhisattva of compassion respectively", "Both are iconographic terms for hand gestures"], correct: 2, explanation: "Maitreya (future Buddha) and Avalokiteshvara (Bodhisattva of infinite compassion) are both specific realizations of the Bodhisattva ideal — beings who defer enlightenment to aid humanity." },
+    { question: "What connects Shahji-ki-Dheri to the Kanishka Reliquary?", options: ["It is the site where the reliquary was discovered", "It is where the relics were eventually moved", "It is the city where Kanishka ruled", "It is an alternative name for Mathura"], correct: 0, explanation: "Shahji-ki-Dheri is the site in Gandhara near Peshawar where the Kanishka Reliquary was discovered — a crossroads where Roman, Central Asian, and Indian cultures met." },
+    { question: "What overarching narrative connects the Parkham Yaksha, Katra Buddha, Bala Buddha, and Bodhgaya Buddha of Year 64?", options: ["All were made from gray micaceous schist", "They trace the evolution from pre-Buddhist Yaksha vitality → Kushana human Buddha → Gupta spiritual transcendence", "All were commissioned by the same dynasty", "All display tribhanga posture"], correct: 1, explanation: "These four works trace the entire arc of Buddhist art: Yaksha physical power repurposed as Buddha vitality (Kushana), then refined into spiritual introspection (Gupta) — all through Mathura's red sandstone tradition." }
+];
 
         // STATE
         let currentTerm = null;
@@ -1513,6 +1842,7 @@
 
                 if (tab === 'artworks') initArtworks();
                 if (tab === 'timeline') initTimeline();
+                if (tab === 'graph') initGraph();
             });
         });
 
@@ -1585,6 +1915,18 @@
                     this.addQuestions(imgQs, num);
                 }
 
+                if (types.includes('connection')) {
+                    const connQs = CONNECTION_QUESTIONS.map((cq, idx) => ({
+                        type: 'connection',
+                        id: idx,
+                        question: cq.question,
+                        options: cq.options,
+                        correct: cq.correct,
+                        explanation: cq.explanation
+                    }));
+                    this.addQuestions(connQs, num);
+                }
+
                 this.questions = this.questions.sort(() => Math.random() - 0.5);
                 if (num !== 'all') {
                     this.questions = this.questions.slice(0, parseInt(num));
@@ -1628,7 +1970,7 @@
                         if (answer === true) correct++;
                     } else if (q.type === 'fillin') {
                         if (answer && q.answers.some(a => a.toLowerCase() === answer.toLowerCase())) correct++;
-                    } else if (q.type === 'image') {
+                    } else if (q.type === 'image' || q.type === 'connection') {
                         if (answer === q.correct) correct++;
                     }
                 });
@@ -1648,7 +1990,7 @@
                     } else if (q.type === 'fillin') {
                         isCorrect = answer && q.answers.some(a => a.toLowerCase() === answer.toLowerCase());
                         display = isCorrect ? `"${answer}"` : `Your answer: "${answer}" (Expected: ${q.answers[0]})`;
-                    } else if (q.type === 'image') {
+                    } else if (q.type === 'image' || q.type === 'connection') {
                         isCorrect = answer === q.correct;
                         display = isCorrect ? q.options[q.correct] : `Your answer: ${answer !== undefined ? q.options[answer] : 'Not answered'} (Expected: ${q.options[q.correct]})`;
                     }
@@ -1729,6 +2071,16 @@
                     html += `<div class="option" onclick="submitImage(${idx})">${opt}</div>`;
                 });
                 html += `</div></div>`;
+            } else if (q.type === 'connection') {
+                html = `
+                    <div class="connection-question">
+                        <div class="question-text"><strong>Connections:</strong> ${q.question}</div>
+                        <div class="options">
+                `;
+                q.options.forEach((opt, idx) => {
+                    html += `<div class="option" onclick="submitConnection(${idx}, '${q.explanation.replace(/'/g, "\\'")}')">${opt}</div>`;
+                });
+                html += `</div></div>`;
             }
 
             document.getElementById('questionContent').innerHTML = html;
@@ -1771,6 +2123,25 @@
             nextQuestionOrFinish();
         }
 
+        function submitConnection(idx, explanation) {
+            const q = quiz.getCurrentQuestion();
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.onclick = null;
+                if (i === q.correct) opt.classList.add('correct');
+                else if (i === idx && idx !== q.correct) opt.classList.add('incorrect');
+            });
+            if (explanation) {
+                const connQ = document.querySelector('.connection-question');
+                const expDiv = document.createElement('div');
+                expDiv.className = 'conn-explanation';
+                expDiv.textContent = explanation;
+                connQ.appendChild(expDiv);
+            }
+            quiz.submitAnswer(idx);
+            setTimeout(nextQuestionOrFinish, 1800);
+        }
+
         function nextQuestionOrFinish() {
             if (quiz.nextQuestion()) {
                 renderQuestion();
@@ -1803,6 +2174,8 @@
                 if (r.question.type === 'flashcard') {
                     qText = r.question.term;
                 } else if (r.question.type === 'fillin') {
+                    qText = r.question.question.substring(0, 60) + '...';
+                } else if (r.question.type === 'connection') {
                     qText = r.question.question.substring(0, 60) + '...';
                 } else {
                     qText = r.question.questionText.substring(0, 60) + '...';
@@ -1838,6 +2211,318 @@
                 document.querySelectorAll('.number-btn').forEach(b => b.classList.remove('selected'));
                 document.querySelector('[data-num="10"]').classList.add('selected');
             };
+        }
+
+        // GRAPH MODE
+        const CATEGORY_COLORS = {
+            iconography: '#9b59b6',
+            figures: '#3498db',
+            concepts: '#1abc9c',
+            artworks: '#e67e22',
+            sites: '#27ae60',
+            periods: '#c0392b',
+            objects: '#7f8c8d'
+        };
+
+        let graphInitialized = false;
+        let graphNodes = [];
+        let graphEdges = [];
+        let selectedNode = null;
+        let dragNode = null;
+        let dragOffsetX = 0, dragOffsetY = 0;
+        let animFrame = null;
+        let simRunning = false;
+        let simTicks = 0;
+
+        function initGraph() {
+            if (graphInitialized) return;
+            graphInitialized = true;
+
+            const wrapper = document.getElementById('graphCanvasWrapper');
+            const W = wrapper.clientWidth || 700;
+            const H = wrapper.clientHeight || 500;
+            const svg = document.getElementById('graphSvg');
+            svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+            // Build nodes
+            graphNodes = TERMS.map((term, i) => ({
+                id: i,
+                term,
+                x: 60 + Math.random() * (W - 120),
+                y: 60 + Math.random() * (H - 120),
+                vx: 0, vy: 0,
+                r: term.category === 'periods' || term.category === 'sites' ? 18 : 14
+            }));
+
+            // Build edges from connects
+            graphEdges = [];
+            TERMS.forEach((term, i) => {
+                if (!term.connects) return;
+                term.connects.forEach(connName => {
+                    const j = TERMS.findIndex(t => t.name === connName);
+                    if (j > i) {
+                        graphEdges.push({ source: i, target: j });
+                    }
+                });
+            });
+
+            renderGraphSvg(W, H);
+            renderGraphLegend();
+            startSimulation(W, H);
+        }
+
+        function renderGraphLegend() {
+            const legend = document.getElementById('graphLegend');
+            const categories = Object.keys(CATEGORY_COLORS);
+            legend.innerHTML = categories.map(cat => `
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:${CATEGORY_COLORS[cat]}"></div>
+                    <span>${cat}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderGraphSvg(W, H) {
+            const svg = document.getElementById('graphSvg');
+            svg.innerHTML = '';
+
+            // defs for arrow (unused but nice to have)
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            svg.appendChild(defs);
+
+            // Edge group
+            const edgeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            edgeGroup.id = 'edgeGroup';
+            graphEdges.forEach((edge, idx) => {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('class', 'graph-edge');
+                line.dataset.idx = idx;
+                edgeGroup.appendChild(line);
+            });
+            svg.appendChild(edgeGroup);
+
+            // Node group
+            const nodeGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            nodeGroup.id = 'nodeGroup';
+            graphNodes.forEach((node, idx) => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.setAttribute('class', 'graph-node');
+                g.dataset.idx = idx;
+
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('r', node.r);
+                circle.setAttribute('fill', CATEGORY_COLORS[node.term.category] || '#999');
+                circle.setAttribute('stroke', '#fff');
+                circle.setAttribute('stroke-width', '2');
+                g.appendChild(circle);
+
+                // Label (2 lines max)
+                const words = node.term.name.split(' ');
+                if (words.length <= 2) {
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('dy', node.r + 12);
+                    text.textContent = node.term.name;
+                    g.appendChild(text);
+                } else {
+                    const mid = Math.ceil(words.length / 2);
+                    const line1 = words.slice(0, mid).join(' ');
+                    const line2 = words.slice(mid).join(' ');
+                    [line1, line2].forEach((lineText, li) => {
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.setAttribute('dy', node.r + 12 + li * 12);
+                        text.textContent = lineText;
+                        g.appendChild(text);
+                    });
+                }
+
+                g.addEventListener('click', (e) => { e.stopPropagation(); selectGraphNode(idx); });
+                g.addEventListener('mousedown', (e) => startDrag(e, idx));
+                nodeGroup.appendChild(g);
+            });
+            svg.appendChild(nodeGroup);
+
+            svg.addEventListener('click', () => clearGraphSelection());
+
+            updateGraphPositions();
+        }
+
+        function updateGraphPositions() {
+            const edgeEls = document.querySelectorAll('.graph-edge');
+            const nodeEls = document.querySelectorAll('.graph-node');
+
+            graphEdges.forEach((edge, idx) => {
+                const s = graphNodes[edge.source];
+                const t = graphNodes[edge.target];
+                const el = edgeEls[idx];
+                if (el) {
+                    el.setAttribute('x1', s.x); el.setAttribute('y1', s.y);
+                    el.setAttribute('x2', t.x); el.setAttribute('y2', t.y);
+                }
+            });
+
+            graphNodes.forEach((node, idx) => {
+                const el = nodeEls[idx];
+                if (el) el.setAttribute('transform', `translate(${node.x},${node.y})`);
+            });
+        }
+
+        function startSimulation(W, H) {
+            simRunning = true;
+            simTicks = 0;
+            const IDEAL = 120;
+            const REPULSION = 1800;
+            const SPRING = 0.04;
+            const DAMPING = 0.82;
+            const CENTER_PULL = 0.008;
+
+            function tick() {
+                if (!simRunning) return;
+                simTicks++;
+
+                // Repulsion
+                for (let i = 0; i < graphNodes.length; i++) {
+                    for (let j = i + 1; j < graphNodes.length; j++) {
+                        const a = graphNodes[i], b = graphNodes[j];
+                        const dx = b.x - a.x, dy = b.y - a.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+                        const force = REPULSION / (dist * dist);
+                        const fx = (dx / dist) * force;
+                        const fy = (dy / dist) * force;
+                        a.vx -= fx; a.vy -= fy;
+                        b.vx += fx; b.vy += fy;
+                    }
+                }
+
+                // Spring forces
+                graphEdges.forEach(edge => {
+                    const a = graphNodes[edge.source], b = graphNodes[edge.target];
+                    const dx = b.x - a.x, dy = b.y - a.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+                    const stretch = dist - IDEAL;
+                    const fx = (dx / dist) * stretch * SPRING;
+                    const fy = (dy / dist) * stretch * SPRING;
+                    a.vx += fx; a.vy += fy;
+                    b.vx -= fx; b.vy -= fy;
+                });
+
+                // Center pull + damping + boundary
+                graphNodes.forEach(node => {
+                    if (node === dragNode) return;
+                    node.vx += (W/2 - node.x) * CENTER_PULL;
+                    node.vy += (H/2 - node.y) * CENTER_PULL;
+                    node.vx *= DAMPING; node.vy *= DAMPING;
+                    node.x += node.vx; node.y += node.vy;
+                    node.x = Math.max(node.r + 2, Math.min(W - node.r - 2, node.x));
+                    node.y = Math.max(node.r + 2, Math.min(H - 60 - node.r, node.y));
+                });
+
+                updateGraphPositions();
+
+                if (simTicks < 300) {
+                    animFrame = requestAnimationFrame(tick);
+                } else {
+                    simRunning = false;
+                }
+            }
+            animFrame = requestAnimationFrame(tick);
+        }
+
+        function startDrag(e, idx) {
+            if (e.button !== 0) return;
+            e.preventDefault();
+            dragNode = graphNodes[idx];
+            simRunning = false;
+            if (animFrame) cancelAnimationFrame(animFrame);
+
+            const svg = document.getElementById('graphSvg');
+            const rect = svg.getBoundingClientRect();
+            const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+            const scaleX = vb[2] / rect.width;
+            const scaleY = vb[3] / rect.height;
+
+            dragOffsetX = (e.clientX - rect.left) * scaleX - dragNode.x;
+            dragOffsetY = (e.clientY - rect.top) * scaleY - dragNode.y;
+
+            function onMove(ev) {
+                const svgR = svg.getBoundingClientRect();
+                const vbNow = svg.getAttribute('viewBox').split(' ').map(Number);
+                dragNode.x = (ev.clientX - svgR.left) * (vbNow[2]/svgR.width) - dragOffsetX;
+                dragNode.y = (ev.clientY - svgR.top) * (vbNow[3]/svgR.height) - dragOffsetY;
+                dragNode.vx = 0; dragNode.vy = 0;
+                updateGraphPositions();
+            }
+            function onUp() {
+                dragNode = null;
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+                startSimulation(
+                    parseInt(svg.getAttribute('viewBox').split(' ')[2]),
+                    parseInt(svg.getAttribute('viewBox').split(' ')[3])
+                );
+            }
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        }
+
+        function selectGraphNode(idx) {
+            selectedNode = idx;
+            const term = graphNodes[idx].term;
+            const connectedIndices = new Set();
+
+            graphEdges.forEach(e => {
+                if (e.source === idx) connectedIndices.add(e.target);
+                if (e.target === idx) connectedIndices.add(e.source);
+            });
+
+            // Update visual state
+            document.querySelectorAll('.graph-node').forEach((el, i) => {
+                el.classList.remove('selected', 'dimmed');
+                if (i === idx) el.classList.add('selected');
+                else if (!connectedIndices.has(i)) el.classList.add('dimmed');
+            });
+
+            document.querySelectorAll('.graph-edge').forEach(el => {
+                const edgeIdx = parseInt(el.dataset.idx);
+                const edge = graphEdges[edgeIdx];
+                el.classList.remove('highlighted');
+                if (edge.source === idx || edge.target === idx) el.classList.add('highlighted');
+            });
+
+            // Build info panel
+            const connectedTerms = Array.from(connectedIndices).map(i => TERMS[i]);
+            let html = `<h2>${term.name}</h2>`;
+            html += `<div class="badges" style="margin-bottom:1rem">
+                <span class="badge category">${term.category}</span>
+                ${term.period ? `<span class="badge period">${term.period}</span>` : ''}
+            </div>`;
+
+            html += `<div class="graph-info-section"><h4>What it is</h4><p>${term.definition}</p></div>`;
+
+            if (term.relevance) {
+                html += `<div class="graph-info-section"><h4>Why it matters</h4><p>${term.relevance}</p></div>`;
+            }
+            if (term.bigPicture) {
+                html += `<div class="graph-info-section"><h4>The bigger picture</h4><p>${term.bigPicture}</p></div>`;
+            }
+
+            if (connectedTerms.length > 0) {
+                html += `<div class="graph-info-section"><h4>Connected concepts (${connectedTerms.length})</h4>
+                    <div class="graph-connections-list">`;
+                connectedTerms.forEach(ct => {
+                    const ci = TERMS.findIndex(t => t.name === ct.name);
+                    html += `<div class="graph-conn-chip" onclick="selectGraphNode(${ci})">${ct.name} <span style="opacity:0.6;font-size:0.75em">${ct.category}</span></div>`;
+                });
+                html += `</div></div>`;
+            }
+
+            document.getElementById('graphInfoPanel').innerHTML = html;
+        }
+
+        function clearGraphSelection() {
+            selectedNode = null;
+            document.querySelectorAll('.graph-node').forEach(el => el.classList.remove('selected', 'dimmed'));
+            document.querySelectorAll('.graph-edge').forEach(el => el.classList.remove('highlighted'));
+            document.getElementById('graphInfoPanel').innerHTML = '<div class="placeholder">Click any node to explore its connections and context</div>';
         }
 
         // INIT
